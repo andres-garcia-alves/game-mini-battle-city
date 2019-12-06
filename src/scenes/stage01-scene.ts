@@ -15,11 +15,11 @@ export class Stage01Scene extends Phaser.Scene {
   }
 
   public preload(): void {
-    this.load.image("background", "assets/images/game-background.png");
+    this.load.image("game-background", "assets/images/game-background.png");
   }
 
   public create(): void {
-    this.background = this.add.image(0, 0, "background").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "game-background").setOrigin(0, 0);
   }
 
   public update(time): void {
