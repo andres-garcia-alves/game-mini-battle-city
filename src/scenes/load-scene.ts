@@ -24,11 +24,10 @@ export class LoadScene extends Phaser.Scene {
   public create(): void {
 
     this.background = this.add.image(0, 0, "load-background").setOrigin(0, 0);
-
     this.info = this.add.text(330, 340, "STAGE  " + this.stageNumber, { font: "24px Courier New", fill: "#000000" });
-    // this.cameras.main.fade(3000);
-    // this.camera.resetFX();
-    this.cameras.main.pan(384, 1080, 1000);
+
+    this.cameras.main.setScroll(0, -720);
+    this.cameras.main.pan(384, 360, 500, "Linear", false);
 
     this.time.addEvent({
       callback: this.onEvent,
