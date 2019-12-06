@@ -4,9 +4,9 @@
 
 export class LoadScene extends Phaser.Scene {
 
-  private stageNumber: number;
   private background: Phaser.GameObjects.Image;
   private info: Phaser.GameObjects.Text;
+  private stageNumber: number;
 
   constructor() {
     super ({ key: "LoadScene" });
@@ -43,6 +43,6 @@ export class LoadScene extends Phaser.Scene {
 
   private onEvent() {
     const keyName: string = "Stage0" + this.stageNumber + "Scene";
-    this.scene.start("Stage01Scene", null);
+    this.scene.start("StageScene", { stageNumber: 1 });
   }
 }

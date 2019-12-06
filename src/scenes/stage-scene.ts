@@ -2,19 +2,22 @@
 /// <reference path="../../types/phaser.d.ts" />
 // import "phaser";
 
-export class Stage01Scene extends Phaser.Scene {
+export class StageScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
+  private stageNumber: number;
 
   constructor() {
-    super ({ key: "Stage01Scene" });
+    super ({ key: "StageScene" });
   }
 
   public init(params): void {
-    // .
+    const keyName = "stageNumber";
+    this.stageNumber = params[keyName];
   }
 
   public preload(): void {
+    console.log("stage:", this.stageNumber);
     this.load.image("game-background", "assets/images/game-background.png");
   }
 
