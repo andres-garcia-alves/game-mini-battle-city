@@ -18,11 +18,11 @@ export class LoadScene extends Phaser.Scene {
   }
 
   public preload(): void {
-    this.load.image("key-load-background", "assets/images/backgrounds/load-background.png");
+    this.load.image("load-background", "assets/images/backgrounds/load-background.png");
   }
 
   public create(): void {
-    this.background = this.add.image(0, 0, "key-load-background").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "load-background").setOrigin(0, 0);
     this.info = this.add.text(330, 340, "STAGE  " + this.stageNumber, { font: "24px Courier New", fill: "#000000" });
 
     this.cameras.main.setScroll(0, -720);
