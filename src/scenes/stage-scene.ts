@@ -1,6 +1,5 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
-// import "phaser";
 
 export class StageScene extends Phaser.Scene {
 
@@ -32,29 +31,32 @@ export class StageScene extends Phaser.Scene {
     this.stageNumber = params[keyName];
     this.stageName = this.buildStageName(params[keyName]);
     this.gameOver = false;
+
+    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   public preload(): void {
+    this.load.image("game-background", "assets/images/backgrounds/game-background.png");
+
+    this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
     this.load.tilemapTiledJSON(`game-${this.stageName}`, `assets/stages/stage${this.stageName}-tilemap.json`);
 
-    this.load.image("game-background", "assets/images/backgrounds/game-background.png");
-    this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
-    this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player01", "assets/images/sprites/player01.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player02", "assets/images/sprites/player02.png", { frameWidth: 48, frameHeight: 48 });
     this.load.image("game-enemies-count", "assets/images/sprites/enemies-logo.png");
     this.load.image("game-level-count", "assets/images/sprites/flag-logo.png");
     this.load.image("game-lives-count", "assets/images/sprites/lives-logo.png");
+
+    this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player01", "assets/images/sprites/player01.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player02", "assets/images/sprites/player02.png", { frameWidth: 48, frameHeight: 48 });
   }
 
   public create(): void {
     this.background = this.add.image(0, 0, "game-background").setOrigin(0, 0);
-    this.cursors = this.input.keyboard.createCursorKeys();
 
     const map = this.make.tilemap({ key: `game-${this.stageName}` });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
-    // const gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
-    const gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
+    const gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
+    // const gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
     // gameLayer.setCollisionByProperty({ collides: true });
 
     this.fortress = this.physics.add.staticSprite(336, 624, "game-fortress");
@@ -98,9 +100,11 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.player1, this.enemies);
     this.physics.add.collider(this.player2, this.enemies);
 
-    this.createFortressAnimations();
-    this.createPlayer1Animations();
-    this.createPlayer2Animations();
+    if (this.stageNumber === 1) { // VOLAR, SOLO PARA TEST !!!!
+      this.createFortressAnimations();
+      this.createPlayer1Animations();
+      this.createPlayer2Animations();
+    }
 
     // ver OVERLAP vs COLLIDER !!!
     // this.physics.add.collider(this.player1, this.player2);
@@ -118,6 +122,9 @@ export class StageScene extends Phaser.Scene {
   public update(time): void {
 
     if (this.gameOver) { return; }
+    if (this.player1.body === undefined) { return; }
+
+    this.player1.setVelocity(0, 0);
 
     if (this.cursors.up.isDown/* && this.player1.body.blocked.up === false*/) {
       this.player1.anims.play("game-anim-player01-up", true);
@@ -138,20 +145,17 @@ export class StageScene extends Phaser.Scene {
       this.player1.anims.play("game-anim-player01-left", true);
       // this.player1.setPosition(this.player1.x - this.SPEED_NORMAL, this.player1.y);
       this.player1.setVelocity(-160, 0);
-
-    } else {
-      this.player1.setVelocity(0, 0);
     }
 
-    if (this.cursors.space.isDown) {
+    if (this.cursors.space.isDown && this.stageNumber < 3) {
       this.cursors.space.reset();
-      // this.stageFailed();
       this.stageCompleted();
     }
 
-    // if (this.cursors.up.isDown && this.player1.body.touching.down) {
-    //   this.player1.setVelocityY(-330);
-    // }
+    if (this.cursors.space.isDown && this.stageNumber === 3) {
+      this.cursors.space.reset();
+      this.stageFailed();
+    }
   }
 
   private buildStageName(stageNumber: number): string {

@@ -1,6 +1,5 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
-// import "phaser";
 
 export class GameOverScene extends Phaser.Scene {
 
