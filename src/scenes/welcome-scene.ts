@@ -3,18 +3,19 @@ export class WelcomeScene extends Phaser.Scene {
   private bgSwitch: boolean = true;
   private background: Phaser.GameObjects.Image;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private stageNumber: number;
 
   constructor() {
     super ({ key: "WelcomeScene" });
   }
 
   public init(params): void {
-    // .
+    this.stageNumber = 0;
   }
 
   public preload() {
-    this.load.image("welcome-background-01", "assets/images/welcome-background-01.png");
-    this.load.image("welcome-background-02", "assets/images/welcome-background-02.png");
+    this.load.image("welcome-background-01", "assets/images/backgrounds/welcome-background-01.png");
+    this.load.image("welcome-background-02", "assets/images/backgrounds/welcome-background-02.png");
   }
 
   public create() {
@@ -34,7 +35,7 @@ export class WelcomeScene extends Phaser.Scene {
 
   public update(time): void {
     if (this.cursors.space.isDown) {
-      this.scene.start("LoadScene", { stageNumber: 1 });
+      this.scene.start("LoadScene", { stageNumber: this.stageNumber + 1 });
     }
   }
 

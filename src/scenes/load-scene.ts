@@ -18,7 +18,7 @@ export class LoadScene extends Phaser.Scene {
   }
 
   public preload(): void {
-    this.load.image("load-background", "assets/images/load-background.png");
+    this.load.image("load-background", "assets/images/backgrounds/load-background.png");
   }
 
   public create(): void {
@@ -42,7 +42,6 @@ export class LoadScene extends Phaser.Scene {
   }
 
   private onEvent() {
-    const keyName: string = "Stage0" + this.stageNumber + "Scene";
-    this.scene.start("StageScene", { stageNumber: 1 });
+    this.scene.start("StageScene", { stageNumber: this.stageNumber });
   }
 }
