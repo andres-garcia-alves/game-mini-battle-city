@@ -18,30 +18,22 @@ export class LoadScene extends Phaser.Scene {
   }
 
   public preload(): void {
-    this.load.image("load-background", "assets/images/backgrounds/load-background.png");
+    this.load.image("key-load-background", "assets/images/backgrounds/load-background.png");
   }
 
   public create(): void {
-
-    this.background = this.add.image(0, 0, "load-background").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "key-load-background").setOrigin(0, 0);
     this.info = this.add.text(330, 340, "STAGE  " + this.stageNumber, { font: "24px Courier New", fill: "#000000" });
 
     this.cameras.main.setScroll(0, -720);
     this.cameras.main.pan(384, 360, 500, "Linear", false);
 
-    this.time.addEvent({
-      callback: this.onEvent,
-      callbackScope: this,
-      delay: 2000,
-      loop: false,
+    this.time.delayedCall(2000, () => {
+      this.scene.start("StageScene", { stageNumber: this.stageNumber });
     });
   }
 
   public update(time): void {
     // .
-  }
-
-  private onEvent() {
-    this.scene.start("StageScene", { stageNumber: this.stageNumber });
   }
 }

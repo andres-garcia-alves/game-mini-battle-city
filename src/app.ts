@@ -1,5 +1,6 @@
 import "phaser";
 import { LoadScene } from "./scenes/load-scene";
+import { ScoresScene } from "./scenes/scores-scene";
 import { StageScene } from "./scenes/stage-scene";
 import { WelcomeScene } from "./scenes/welcome-scene";
 
@@ -14,7 +15,7 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
     default: "arcade",
   },
   render: { pixelArt: true, antialias: false },
-  scene: [WelcomeScene, LoadScene, StageScene],
+  scene: [WelcomeScene, LoadScene, StageScene, ScoresScene],
   title: "Mini Battle City",
   type: Phaser.AUTO,
   width: 768,

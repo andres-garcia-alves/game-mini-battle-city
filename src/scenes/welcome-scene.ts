@@ -14,19 +14,19 @@ export class WelcomeScene extends Phaser.Scene {
   }
 
   public preload() {
-    this.load.image("welcome-background-01", "assets/images/backgrounds/welcome-background-01.png");
-    this.load.image("welcome-background-02", "assets/images/backgrounds/welcome-background-02.png");
+    this.load.image("key-welcome-background-01", "assets/images/backgrounds/welcome-background-01.png");
+    this.load.image("key-welcome-background-02", "assets/images/backgrounds/welcome-background-02.png");
   }
 
   public create() {
-    this.background = this.add.image(0, 0, "welcome-background-01").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "key-welcome-background-01").setOrigin(0, 0);
     this.cursors = this.input.keyboard.createCursorKeys();
 
     this.cameras.main.setScroll(0, -720);
     this.cameras.main.pan(384, 360, 2000, "Linear", false);
 
     this.time.addEvent({
-      callback: this.onEvent,
+      callback: this.blinkBackground,
       callbackScope: this,
       delay: 500,
       loop: true,
@@ -39,8 +39,8 @@ export class WelcomeScene extends Phaser.Scene {
     }
   }
 
-  private onEvent() {
-    const keyName: string = (this.bgSwitch) ? "welcome-background-01" : "welcome-background-02";
+  private blinkBackground() {
+    const keyName: string = (this.bgSwitch) ? "key-welcome-background-01" : "key-welcome-background-02";
     this.background = this.add.image(0, 0, keyName).setOrigin(0, 0);
     this.bgSwitch = !this.bgSwitch;
   }
