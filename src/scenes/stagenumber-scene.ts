@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
-export class LoadScene extends Phaser.Scene {
+export class StageNumberScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
   // private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -9,7 +9,7 @@ export class LoadScene extends Phaser.Scene {
   private stageNumber: number;
 
   constructor() {
-    super ({ key: "LoadScene" });
+    super ({ key: "StageNumberScene" });
   }
 
   public init(params): void {

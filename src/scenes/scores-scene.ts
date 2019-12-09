@@ -24,7 +24,7 @@ export class ScoresScene extends Phaser.Scene {
     this.background = this.add.image(0, 0, "scores-background").setOrigin(0, 0);
 
     this.time.delayedCall(2000, () => {
-      this.scene.start("LoadScene", { stageNumber: this.stageNumber + 1 });
+      this.scene.start("StageNumberScene", { stageNumber: this.stageNumber + 1 });
     });
   }
 

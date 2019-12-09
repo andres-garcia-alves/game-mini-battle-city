@@ -1,8 +1,8 @@
 import "phaser";
 import { GameOverScene } from "./scenes/gameover-scene";
-import { LoadScene } from "./scenes/load-scene";
 import { ScoresScene } from "./scenes/scores-scene";
 import { StageScene } from "./scenes/stage-scene";
+import { StageNumberScene } from "./scenes/stagenumber-scene";
 import { WelcomeScene } from "./scenes/welcome-scene";
 
 const defaultConfig: Phaser.Types.Core.GameConfig = {
@@ -17,18 +17,17 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
     default: "arcade",
   },
   render: { pixelArt: true, antialias: false },
-  scene: [WelcomeScene, GameOverScene, LoadScene, ScoresScene, StageScene],
+  // scene: [WelcomeScene, GameOverScene, ScoresScene, StageScene, StageNumberScene],
+  scene: [StageScene, WelcomeScene, GameOverScene, ScoresScene, StageNumberScene],
   title: "Mini Battle City",
   type: Phaser.AUTO,
   width: 768,
 };
 
 export class BattleCityGame extends Phaser.Game {
-
   constructor(config: Phaser.Types.Core.GameConfig) {
     super(config);
   }
-
 }
 
 window.onload = () => {

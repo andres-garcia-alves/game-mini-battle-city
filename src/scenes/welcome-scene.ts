@@ -36,7 +36,7 @@ export class WelcomeScene extends Phaser.Scene {
   public update(time): void {
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
-      this.scene.start("LoadScene", { stageNumber: this.stageNumber + 1 });
+      this.scene.start("StageNumberScene", { stageNumber: this.stageNumber + 1 });
     }
   }
 

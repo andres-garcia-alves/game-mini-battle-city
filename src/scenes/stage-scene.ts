@@ -1,10 +1,12 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
+import { GameAnimations } from "../animations/game-animations";
+
 export class StageScene extends Phaser.Scene {
 
-  private SPEED_NORMAL: number = 2;
-  private SPEED_FAST: number = 4;
+  // private SPEED_NORMAL: number = 2;
+  // private SPEED_FAST: number = 4;
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -29,35 +31,38 @@ export class StageScene extends Phaser.Scene {
   public init(params): void {
     const keyName = "stageNumber";
     this.stageNumber = params[keyName];
-    this.stageName = this.buildStageName(params[keyName]);
-    this.gameOver = false;
 
+    if (this.stageNumber === undefined) { this.stageNumber = 1; }
+    this.stageName = this.buildStageName(this.stageNumber);
+
+    this.gameOver = false;
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   public preload(): void {
     this.load.image("game-background", "assets/images/backgrounds/game-background.png");
-
+    this.load.tilemapTiledJSON(`game-stage${this.stageName}`, `assets/stages/stage${this.stageName}-tilemap.json`);
     this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
-    this.load.tilemapTiledJSON(`game-${this.stageName}`, `assets/stages/stage${this.stageName}-tilemap.json`);
-
-    this.load.image("game-enemies-count", "assets/images/sprites/enemies-logo.png");
-    this.load.image("game-level-count", "assets/images/sprites/flag-logo.png");
-    this.load.image("game-lives-count", "assets/images/sprites/lives-logo.png");
 
     this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player01", "assets/images/sprites/player01.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player02", "assets/images/sprites/player02.png", { frameWidth: 48, frameHeight: 48 });
+
+    this.load.image("game-enemies-count", "assets/images/sprites/enemies-logo.png");
+    this.load.image("game-level-count", "assets/images/sprites/flag-logo.png");
+    this.load.image("game-lives-count", "assets/images/sprites/lives-logo.png");
   }
 
   public create(): void {
-    this.background = this.add.image(0, 0, "game-background").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "game-background");
+    this.background.setOrigin(0, 0);
 
-    const map = this.make.tilemap({ key: `game-${this.stageName}` });
+    const map = this.make.tilemap({ key: `game-stage${this.stageName}` });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
     const gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
     // const gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
-    // gameLayer.setCollisionByProperty({ collides: true });
+    gameLayer.setOrigin(0, 0);
+    gameLayer.setCollisionBetween(1, 9999, true, true);
 
     this.fortress = this.physics.add.staticSprite(336, 624, "game-fortress");
     this.fortress.setBounce(0, 0);
@@ -84,27 +89,28 @@ export class StageScene extends Phaser.Scene {
 
     this.enemies = this.physics.add.group();
 
+    this.levelCount = this.add.image(696, 552, "game-level-count").setOrigin(0, 0);
+    this.livesCount = this.add.image(696, 432, "game-lives-count").setOrigin(0, 0);
     this.enemiesCount = this.add.group();
+
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 2; j++) {
         this.enemiesCount.create(708 + (j * 24), 84 + (i * 24), "game-enemies-count");
       }
     }
 
-    this.levelCount = this.add.image(696, 552, "game-level-count").setOrigin(0, 0);
-    this.livesCount = this.add.image(696, 432, "game-lives-count").setOrigin(0, 0);
-
+    this.physics.add.collider(this.player1, this.player2);
     this.physics.add.collider(this.player1, this.fortress);
     this.physics.add.collider(this.player2, this.fortress);
-    this.physics.add.collider(this.player1, this.player2);
+    this.physics.add.collider(this.player1, gameLayer);
+    this.physics.add.collider(this.player2, gameLayer);
     this.physics.add.collider(this.player1, this.enemies);
     this.physics.add.collider(this.player2, this.enemies);
 
-    if (this.stageNumber === 1) { // VOLAR, SOLO PARA TEST !!!!
-      this.createFortressAnimations();
-      this.createPlayer1Animations();
-      this.createPlayer2Animations();
-    }
+    const gameAnimations = new GameAnimations(this);
+    gameAnimations.createFortressAnimations();
+    gameAnimations.createPlayer1Animations();
+    gameAnimations.createPlayer2Animations();
 
     // ver OVERLAP vs COLLIDER !!!
     // this.physics.add.collider(this.player1, this.player2);
@@ -159,77 +165,7 @@ export class StageScene extends Phaser.Scene {
   }
 
   private buildStageName(stageNumber: number): string {
-    if (stageNumber === undefined) { stageNumber = 1; }
     return (stageNumber < 10) ? "0" + stageNumber.toString() : stageNumber.toString();
-  }
-
-  private createFortressAnimations(): void {
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-fortress", { start: 0, end: 1 }),
-      key: "game-anim-fortress-destroyed",
-      repeat: 1,
-    });
-  }
-
-  private createPlayer1Animations(): void {
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player01", { start: 0, end: 1 }),
-      key: "game-anim-player01-up",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player01", { start: 2, end: 3 }),
-      key: "game-anim-player01-right",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player01", { start: 4, end: 5 }),
-      key: "game-anim-player01-down",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player01", { start: 6, end: 7 }),
-      key: "game-anim-player01-left",
-      repeat: 1,
-    });
-  }
-
-  private createPlayer2Animations(): void {
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player02", { start: 0, end: 1 }),
-      key: "game-anim-player02-up",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player02", { start: 2, end: 3 }),
-      key: "game-anim-player02-right",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player02", { start: 4, end: 5 }),
-      key: "game-anim-player02-down",
-      repeat: 1,
-    });
-
-    this.anims.create({
-      frameRate: 10,
-      frames: this.anims.generateFrameNumbers("game-player02", { start: 6, end: 7 }),
-      key: "game-anim-player02-left",
-      repeat: 1,
-    });
   }
 
   private stageCompleted() {
