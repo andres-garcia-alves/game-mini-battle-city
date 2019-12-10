@@ -1,4 +1,4 @@
-export class Player01Animations {
+export class PlayerOneAnimations {
 
   public static create(scene: Phaser.Scene): void {
 

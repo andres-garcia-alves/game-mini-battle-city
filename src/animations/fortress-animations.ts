@@ -8,7 +8,7 @@ export class FortressAnimations {
     if (scene.anims.get(FORTRESS_DESTROYED) === undefined) {
       scene.anims.create({
         frameRate: 10,
-        frames: scene.anims.generateFrameNumbers(SPRITESHEET_KEY, { start: 0, end: 1 }),
+        frames: scene.anims.generateFrameNumbers(SPRITESHEET_KEY, { start: 1, end: 1 }),
         key: FORTRESS_DESTROYED,
         repeat: 1,
       });

@@ -16,6 +16,91 @@
       "type": "regular",
       "spawn": "left",
       "delay": 9000
+    },
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 13000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 17000
+    },
+    {
+      "type": "regular",
+      "spawn": "left",
+      "delay": 21000
+    },
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 25000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 29000
+    },
+    {
+      "type": "regular",
+      "spawn": "left",
+      "delay": 33000
+    },
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 37000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 41000
+    },
+    {
+      "type": "regular",
+      "spawn": "left",
+      "delay": 45000
+    },
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 49000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 53000
+    },
+    {
+      "type": "regular",
+      "spawn": "left",
+      "delay": 57000
+    },
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 61000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 65000
+    },
+    {
+      "type": "speedy",
+      "spawn": "left",
+      "delay": 69000
+    },
+    {
+      "type": "speedy",
+      "spawn": "center",
+      "delay": 73000
+    },
+    {
+      "type": "speedy",
+      "spawn": "right",
+      "delay": 77000
     }
   ]
 }
