@@ -1,17 +1,21 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
-import { GameAnimations } from "../animations/game-animations";
+import { FortressAnimations } from "../animations/fortress-animations";
+import { Player01Animations } from "../animations/player01-animations";
+import { Player02Animations } from "../animations/player02-animations";
+import { RegularEnemyAnimations } from "../animations/regular-enemy-animations";
+import { ScriptManager } from "../scripting/script-manager";
 
 export class StageScene extends Phaser.Scene {
 
-  // private SPEED_NORMAL: number = 2;
-  // private SPEED_FAST: number = 4;
+  // private const SPEED_NORMAL: number = 2;
+  // private const SPEED_FAST: number = 4;
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
-  private enemiesCount: Phaser.GameObjects.Group;
   private background: Phaser.GameObjects.Image;
+  private enemiesCount: Phaser.GameObjects.Group;
   private levelCount: Phaser.GameObjects.Image;
   private livesCount: Phaser.GameObjects.Image;
 
@@ -41,12 +45,16 @@ export class StageScene extends Phaser.Scene {
 
   public preload(): void {
     this.load.image("game-background", "assets/images/backgrounds/game-background.png");
-    this.load.tilemapTiledJSON(`game-stage${this.stageName}`, `assets/stages/stage${this.stageName}-tilemap.json`);
+
+    this.load.tilemapTiledJSON(`game-stage${this.stageName}-tilemap`, `assets/stages/stage${this.stageName}-tilemap.json`);
+    this.load.json(`game-stage${this.stageName}-script`, `assets/stages/stage${this.stageName}-script.json`);
     this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
 
     this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player01", "assets/images/sprites/player01.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player02", "assets/images/sprites/player02.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player-one", "assets/images/sprites/player-one.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player-two", "assets/images/sprites/player-two.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-regular", "assets/images/sprites/enemy-regular.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-speedy", "assets/images/sprites/enemy-speedy.png", { frameWidth: 48, frameHeight: 48 });
 
     this.load.image("game-enemies-count", "assets/images/sprites/enemies-logo.png");
     this.load.image("game-level-count", "assets/images/sprites/flag-logo.png");
@@ -57,35 +65,26 @@ export class StageScene extends Phaser.Scene {
     this.background = this.add.image(0, 0, "game-background");
     this.background.setOrigin(0, 0);
 
-    const map = this.make.tilemap({ key: `game-stage${this.stageName}` });
+    const map = this.make.tilemap({ key: `game-stage${this.stageName}-tilemap` });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
     const gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
     // const gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
-    gameLayer.setOrigin(0, 0);
     gameLayer.setCollisionBetween(1, 9999, true, true);
+    const aboveLayer = map.createStaticLayer("above-layer", tileSet, 0, 0);
+    aboveLayer.setDepth(2);
 
-    this.fortress = this.physics.add.staticSprite(336, 624, "game-fortress");
+    this.fortress = this.physics.add.staticSprite(360, 648, "game-fortress");
     this.fortress.setBounce(0, 0);
     this.fortress.setCollideWorldBounds(true);
     this.fortress.setImmovable(true);
-    this.fortress.setOrigin(0, 0);
-    // this.fortress.setMass(1);
 
-    this.player1 = this.physics.add.sprite(240, 624, "game-player01");
+    this.player1 = this.physics.add.sprite(264, 648, "game-player-one");
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
-    // this.player1.setDrag(1000);
-    // this.player1.setFriction(999999, 999999);
-    this.player1.setOrigin(0, 0);
-    // this.player1.setMass(1);
 
-    this.player2 = this.physics.add.sprite(432, 624, "game-player02");
+    this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
-    // this.player2.setDrag(1000);
-    // this.player2.setFriction(999999, 999999);
-    this.player2.setOrigin(0, 0);
-    // this.player2.setMass(1);
 
     this.enemies = this.physics.add.group();
 
@@ -107,22 +106,12 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.player1, this.enemies);
     this.physics.add.collider(this.player2, this.enemies);
 
-    const gameAnimations = new GameAnimations(this);
-    gameAnimations.createFortressAnimations();
-    gameAnimations.createPlayer1Animations();
-    gameAnimations.createPlayer2Animations();
+    FortressAnimations.create(this);
+    Player01Animations.create(this);
+    Player02Animations.create(this);
 
-    // ver OVERLAP vs COLLIDER !!!
-    // this.physics.add.collider(this.player1, this.player2);
-    // this.physics.add.overlap(this.player1, this.player2);
-    // this.physics.add.overlap(this.player1, this.enemies, collectStar, null, this);
-    // this.physics.add.collider(this.player2, this.enemies, hitBomb, null, this);
-
-    // const aboveLayer = map.createStaticLayer("Collision Layer", tileset, 0, 0);
-    // const belowLayer = map.createStaticLayer("Bottom Layer", tileset, 0, 0);
-    // const worldLayer = map.createStaticLayer("Top Layer", tileset, 0, 0);
-    // worldLayer.setDepth(10);
-    // const spawnPoint = map.findObject("Objects", obj => obj.name === "Spawn Point");
+    const data = this.cache.json.get(`game-stage${this.stageName}-script`);
+    ScriptManager.parse(this, this.enemies, data);
   }
 
   public update(time): void {
@@ -132,22 +121,22 @@ export class StageScene extends Phaser.Scene {
 
     this.player1.setVelocity(0, 0);
 
-    if (this.cursors.up.isDown/* && this.player1.body.blocked.up === false*/) {
+    if (this.cursors.up.isDown) {
       this.player1.anims.play("game-anim-player01-up", true);
       // this.player1.setPosition(this.player1.x, this.player1.y - this.SPEED_NORMAL);
       this.player1.setVelocity(0, -160);
 
-    } else if (this.cursors.right.isDown/* && this.player1.body.blocked.right === false*/) {
+    } else if (this.cursors.right.isDown) {
       this.player1.anims.play("game-anim-player01-right", true);
       // this.player1.setPosition(this.player1.x + this.SPEED_NORMAL, this.player1.y);
       this.player1.setVelocity(160, 0);
 
-    } else if (this.cursors.down.isDown/* && this.player1.body.touching.down === false*/) {
+    } else if (this.cursors.down.isDown) {
       this.player1.anims.play("game-anim-player01-down", true);
       // this.player1.setPosition(this.player1.x, this.player1.y + this.SPEED_NORMAL);
       this.player1.setVelocity(0, 160);
 
-    } else if (this.cursors.left.isDown/* && this.player1.body.touching.left === false*/) {
+    } else if (this.cursors.left.isDown) {
       this.player1.anims.play("game-anim-player01-left", true);
       // this.player1.setPosition(this.player1.x - this.SPEED_NORMAL, this.player1.y);
       this.player1.setVelocity(-160, 0);

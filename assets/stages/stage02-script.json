@@ -1,0 +1,21 @@
+{
+  "stageNumber": 1,
+  "stageName": "stage01",
+  "enemies": [
+    {
+      "type": "regular",
+      "spawn": "center",
+      "delay": 1000
+    },
+    {
+      "type": "regular",
+      "spawn": "right",
+      "delay": 5000
+    },
+    {
+      "type": "regular",
+      "spawn": "left",
+      "delay": 9000
+    }
+  ]
+}
