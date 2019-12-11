@@ -1,8 +1,10 @@
 export class WelcomeScene extends Phaser.Scene {
 
-  private bgSwitch: boolean = true;
   private background: Phaser.GameObjects.Image;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private startText: Phaser.GameObjects.BitmapText;
+
+  private bgSwitch: boolean;
   private stageNumber: number;
 
   constructor() {
@@ -10,17 +12,22 @@ export class WelcomeScene extends Phaser.Scene {
   }
 
   public init(params): void {
+    this.bgSwitch = false;
     this.stageNumber = 0;
   }
 
   public preload() {
-    this.load.image("welcome-background-01", "assets/images/backgrounds/welcome-background-01.png");
-    this.load.image("welcome-background-02", "assets/images/backgrounds/welcome-background-02.png");
+    this.load.image("welcome-background", "assets/images/backgrounds/welcome-background.png");
+    this.load.bitmapFont("console-font", "assets/fonts/press-start-2p.png", "assets/fonts/press-start-2p.fnt");
   }
 
   public create() {
-    this.background = this.add.image(0, 0, "welcome-background-01").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "welcome-background").setOrigin(0, 0);
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.startText = this.add.bitmapText(172, 432, "console-font", "PLEASE INSERT COIN", 24);
+    this.startText.setDepth(1);
+    this.startText.setTint(0xEEEEEE);
 
     this.cameras.main.setScroll(0, -720);
     this.cameras.main.pan(384, 360, 2000, "Linear", false);
@@ -41,8 +48,10 @@ export class WelcomeScene extends Phaser.Scene {
   }
 
   private blinkBackground() {
-    const keyName: string = (this.bgSwitch) ? "welcome-background-01" : "welcome-background-02";
-    this.background = this.add.image(0, 0, keyName).setOrigin(0, 0);
+    /*const keyName: string = (this.bgSwitch) ? "welcome-background-01" : "welcome-background-02";
+    this.background = this.add.image(0, 0, keyName).setOrigin(0, 0);*/
+
+    this.startText.setVisible(this.bgSwitch);
     this.bgSwitch = !this.bgSwitch;
   }
 }

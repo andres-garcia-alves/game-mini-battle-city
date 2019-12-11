@@ -19,12 +19,14 @@ export class StageNumberScene extends Phaser.Scene {
 
   public preload(): void {
     this.load.image("load-background", "assets/images/backgrounds/load-background.png");
+    this.load.bitmapFont("welcome-font", "assets/fonts/press-start-2p.png", "assets/fonts/press-start-2p.fnt");
   }
 
   public create(): void {
     this.background = this.add.image(0, 0, "load-background").setOrigin(0, 0);
     // this.cursors = this.input.keyboard.createCursorKeys();
     this.info = this.add.text(330, 340, "STAGE  " + this.stageNumber, { font: "24px Courier New", fill: "#000000" });
+    let texto: Phaser.GameObjects.BitmapText = this.add.bitmapText(200, 500, "welcome-font", "PROBANDO");
 
     this.cameras.main.setScroll(0, -720);
     this.cameras.main.pan(384, 360, 500, "Linear", false);
