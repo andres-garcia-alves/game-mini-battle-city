@@ -2,11 +2,13 @@
 /// <reference path="../../types/phaser.d.ts" />
 
 import { BulletAnimations } from "../animations/bullet-animations";
+import { EnemiesHeavyAnimations } from "../animations/enemies-heavy-animations";
+import { EnemiesRegularAnimations } from "../animations/enemies-regular-animations";
+import { EnemiesShooterAnimations } from "../animations/enemies-shooter-animations";
+import { EnemiesSpeedyAnimations } from "../animations/enemies-speedy-animations";
 import { FortressAnimations } from "../animations/fortress-animations";
 import { PlayerOneAnimations } from "../animations/player-one-animations";
 import { PlayerTwoAnimations } from "../animations/player-two-animations";
-import { RegularEnemyAnimations } from "../animations/regular-enemy-animations";
-import { SpeedyEnemyAnimations } from "../animations/speedy-enemy-animations";
 
 import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
@@ -69,6 +71,7 @@ export class StageScene extends Phaser.Scene {
     this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
 
     this.load.spritesheet("game-bullet", "assets/images/sprites/bullet.png", { frameWidth: 12, frameHeight: 12 });
+    this.load.spritesheet("game-bullet-explosion", "assets/images/sprites/bullet-explosion.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player-one", "assets/images/sprites/player-one.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player-two", "assets/images/sprites/player-two.png", { frameWidth: 48, frameHeight: 48 });
@@ -103,8 +106,10 @@ export class StageScene extends Phaser.Scene {
     BulletAnimations.create(this);
 
     this.enemies = this.physics.add.group();
-    RegularEnemyAnimations.create(this);
-    SpeedyEnemyAnimations.create(this);
+    EnemiesHeavyAnimations.create(this);
+    EnemiesRegularAnimations.create(this);
+    EnemiesShooterAnimations.create(this);
+    EnemiesSpeedyAnimations.create(this);
 
     this.fortress = this.physics.add.staticSprite(360, 648, "game-fortress");
     this.fortress.setBounce(0, 0);
@@ -281,12 +286,13 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    this.bulletsPlayer1.remove(src, true, true);
-    this.bulletsPlayer1.remove(dst, true, true);
+    src.anims.play("game-anim-bullet-explosion", true);
+    this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+    // dst.anims.play("game-anim-bullet-explosion", true);
+    // this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
   }
 
   private collitionDestroyBullets(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    // chequear vice-versa
     this.bulletsPlayer1.remove(src, true, true);
     this.bulletsEnemies.remove(dst, true, true);
   }
@@ -323,9 +329,13 @@ export class StageScene extends Phaser.Scene {
   private collitionDestroyGameLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
 
     const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
-    const direction = this.player1.getData("direction");
+
+    src.anims.play("game-anim-bullet-explosion", true);
+    this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
 
     // BUG: es la dire de la bala, no del player al momento (muy posterior) en el que esta impacta
+    const direction = this.player1.getData("direction");
+
     if (direction === "up") {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
@@ -350,8 +360,6 @@ export class StageScene extends Phaser.Scene {
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
     }
-
-    this.bulletsPlayer1.remove(src, true, true);
   }
 
   private collitionDestroyPlayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
