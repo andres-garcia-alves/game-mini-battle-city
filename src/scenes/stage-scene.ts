@@ -72,8 +72,10 @@ export class StageScene extends Phaser.Scene {
     this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player-one", "assets/images/sprites/player-one.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-player-two", "assets/images/sprites/player-two.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-regular-enemy", "assets/images/sprites/regular-enemy.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-speedy-enemy", "assets/images/sprites/speedy-enemy.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-regular", "assets/images/sprites/enemy-regular.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-speedy", "assets/images/sprites/enemy-speedy.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-shooter", "assets/images/sprites/enemy-shooter.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-enemy-heavy", "assets/images/sprites/enemy-heavy.png", { frameWidth: 48, frameHeight: 48 });
 
     this.load.image("game-enemies-count", "assets/images/sprites/logo-enemies.png");
     this.load.image("game-game-over", "assets/images/sprites/logo-game-over.png");
@@ -213,11 +215,11 @@ export class StageScene extends Phaser.Scene {
     if (this.gameOver && !this.sceneEnding)        { this.stageFailed(); }
     if (this.stageCompleted && !this.sceneEnding)  { this.stageSucceeded(); }
 
-    if (this.cursors.shift.isDown && this.gameProgress.stageNumber < 3) {
+    if (this.cursors.shift.isDown && this.gameProgress.stageNumber < this.gameProgress.MAX_STAGE) {
       this.cursors.shift.reset();
       this.stageSucceeded();
     }
-    if (this.cursors.shift.isDown && this.gameProgress.stageNumber === 3) {
+    if (this.cursors.shift.isDown && this.gameProgress.stageNumber === this.gameProgress.MAX_STAGE) {
       this.cursors.space.reset();
       this.stageFailed();
     }

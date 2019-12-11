@@ -50,10 +50,10 @@ export class ScriptManager {
 
   private static getSpriteKey(type: string): string {
 
-    const SPRITE_KEY_REGULAR: string = "game-regular-enemy";
-    const SPRITE_KEY_SPEEDY: string = "game-speedy-enemy";
-    const SPRITE_KEY_SHOOTER: string = "game-shooter-enemy";
-    const SPRITE_KEY_HEAVY: string = "game-heavy-enemy";
+    const SPRITE_KEY_REGULAR: string = "game-enemy-regular";
+    const SPRITE_KEY_SPEEDY: string = "game-enemy-speedy";
+    const SPRITE_KEY_SHOOTER: string = "game-enemy-shooter";
+    const SPRITE_KEY_HEAVY: string = "game-enemy-heavy";
 
     type = type.toLowerCase();
     if (type === "regular") { return SPRITE_KEY_REGULAR; }

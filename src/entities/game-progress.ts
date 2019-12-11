@@ -6,6 +6,7 @@ export class GameProgress {
   public POINTS_SPEEDY_ENEMY: number = 200;
   public POINTS_SHOOTER_ENEMY: number = 300;
   public POINTS_HEAVY_ENEMY: number = 400;
+  public MAX_STAGE: number = 3;
 
   public stageNumber: number;
 
