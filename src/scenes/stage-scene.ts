@@ -27,6 +27,7 @@ export class StageScene extends Phaser.Scene {
   private textLivesCount2A: Phaser.GameObjects.BitmapText;
   private textLivesCount2B: Phaser.GameObjects.BitmapText;
 
+  private frameLayer: Phaser.Tilemaps.StaticTilemapLayer;
   private gameLayer: Phaser.Tilemaps.DynamicTilemapLayer;
   private bulletsEnemies: Phaser.Physics.Arcade.Group;
   private bulletsPlayer1: Phaser.Physics.Arcade.Group;
@@ -42,6 +43,7 @@ export class StageScene extends Phaser.Scene {
   private filesBaseUrl: string;
   private gameOver: boolean;
   private stageCompleted: boolean;
+  private sceneEnding: boolean;
 
   constructor() {
     super ({ key: "StageScene" });
@@ -56,6 +58,7 @@ export class StageScene extends Phaser.Scene {
 
     this.gameOver = false;
     this.stageCompleted = false;
+    this.sceneEnding = false;
   }
 
   public preload(): void {
@@ -86,11 +89,11 @@ export class StageScene extends Phaser.Scene {
 
     const map = this.make.tilemap({ key: this.filesBaseKey + "-tilemap" });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
-    // this.gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
+    this.frameLayer = map.createStaticLayer("frame-layer", tileSet, 0, 0);
+    this.frameLayer.setCollisionBetween(1, 9999, true, true);
     this.gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
     this.gameLayer.setCollisionBetween(1, 9999, true, true);
-    const aboveLayer = map.createStaticLayer("above-layer", tileSet, 0, 0);
-    aboveLayer.setDepth(2);
+    const aboveLayer = map.createStaticLayer("above-layer", tileSet, 0, 0).setDepth(2);
 
     this.bulletsEnemies = this.physics.add.group();
     this.bulletsPlayer1 = this.physics.add.group();
@@ -143,24 +146,34 @@ export class StageScene extends Phaser.Scene {
     }
 
     this.physics.add.collider(this.player1, this.player2);
+    this.physics.add.collider(this.player1, this.frameLayer);
+    this.physics.add.collider(this.player2, this.frameLayer);
     this.physics.add.collider(this.player1, this.gameLayer);
     this.physics.add.collider(this.player2, this.gameLayer);
     this.physics.add.collider(this.player1, this.fortress);
     this.physics.add.collider(this.player2, this.fortress);
     this.physics.add.collider(this.player1, this.enemies);
     this.physics.add.collider(this.player2, this.enemies);
+    this.physics.add.collider(this.enemies, this.frameLayer);
+    this.physics.add.collider(this.enemies, this.gameLayer);
+    this.physics.add.collider(this.enemies, this.fortress);
     this.physics.add.collider(this.bulletsPlayer1, this.player2, this.collitionDestroyBullet, null, this);
     this.physics.add.collider(this.bulletsPlayer2, this.player1);
-    this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.player2);
-    this.physics.add.collider(this.bulletsPlayer1, this.gameLayer, this.collitionDestroyLayer, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.frameLayer, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.frameLayer);
+    this.physics.add.collider(this.bulletsPlayer1, this.gameLayer, this.collitionDestroyGameLayer, null, this);
     this.physics.add.collider(this.bulletsPlayer2, this.gameLayer);
     this.physics.add.collider(this.bulletsPlayer1, this.fortress, this.collitionDestroyFortress, null, this);
     this.physics.add.collider(this.bulletsPlayer2, this.fortress);
     this.physics.add.collider(this.bulletsPlayer1, this.enemies, this.collitionDestroyEnemy, null, this);
     this.physics.add.collider(this.bulletsPlayer2, this.enemies);
-    this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies);
+    this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies, this.collitionDestroyBullets, null, this);
     this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies);
+    this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
+    this.physics.add.collider(this.bulletsEnemies, this.player2);
+    this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsEnemies, this.gameLayer); // FALTA ACA !!!
+    this.physics.add.collider(this.bulletsEnemies, this.fortress);
 
     const dataJSON = this.cache.json.get(this.filesBaseKey + "-script");
     ScriptManager.parse(this, this.enemies, dataJSON, this.enemyCreated, this.logoEnemiesCount);
@@ -197,8 +210,8 @@ export class StageScene extends Phaser.Scene {
       this.createBulletPlayer1();
     }
 
-    if (this.gameOver)        { this.stageFailed(); }
-    if (this.stageCompleted)  { this.stageSucceeded(); }
+    if (this.gameOver && !this.sceneEnding)        { this.stageFailed(); }
+    if (this.stageCompleted && !this.sceneEnding)  { this.stageSucceeded(); }
 
     if (this.cursors.shift.isDown && this.gameProgress.stageNumber < 3) {
       this.cursors.shift.reset();
@@ -266,7 +279,14 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+    this.bulletsPlayer1.remove(src, true, true);
     this.bulletsPlayer1.remove(dst, true, true);
+  }
+
+  private collitionDestroyBullets(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+    // chequear vice-versa
+    this.bulletsPlayer1.remove(src, true, true);
+    this.bulletsEnemies.remove(dst, true, true);
   }
 
   private collitionDestroyEnemy(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
@@ -293,15 +313,17 @@ export class StageScene extends Phaser.Scene {
   private collitionDestroyFortress(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
     this.fortress.anims.play("game-anim-fortress-destroyed");
     this.bulletsPlayer1.remove(dst, true, true);
+    this.bulletsEnemies.remove(dst, true, true);
 
     this.gameOver = true;
   }
 
-  private collitionDestroyLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+  private collitionDestroyGameLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
 
     const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
     const direction = this.player1.getData("direction");
 
+    // BUG: es la dire de la bala, no del player al momento (muy posterior) en el que esta impacta
     if (direction === "up") {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
@@ -335,22 +357,18 @@ export class StageScene extends Phaser.Scene {
   }
 
   private stageSucceeded() {
-    this.time.delayedCall(2000, () => {
-      this.scene.start("ScoresScene", this.gameProgress);
-    });
+    if (this.sceneEnding) { return; }
+    this.sceneEnding = true;
+
+    console.log(this.gameProgress);
+    this.time.delayedCall(2000, () => { this.scene.start("ScoresScene", this.gameProgress); });
   }
 
   private stageFailed() {
-    this.tweens.add({
-      duration: 2000,
-      ease: "Back", // "Back", "Cubic", "Linear"
-      repeat: 0,
-      targets: this.logoGameOver,
-      y: "342",
-      yoyo: false,
-    });
-    this.time.delayedCall(3000, () => {
-      this.scene.start("GameOverScene");
-    });
+    if (this.sceneEnding) { return; }
+    this.sceneEnding = true;
+
+    this.tweens.add({ duration: 2000, ease: "Back", repeat: 0, targets: this.logoGameOver, y: "342", yoyo: false });
+    this.time.delayedCall(3000, () => { this.scene.start("GameOverScene"); });
   }
 }
