@@ -15,8 +15,8 @@ If you want to run this project then you need [Node.js](https://nodejs.org) inst
 
 | Command | Description |
 |---------|-------------|
-| `npm install` | Install dependencies and launch browser with the game.|
-| `npm run start` | Launch browser to show the game. <br> Press `Ctrl + c` to kill **http-server** process. |
-| `npm run deploy` | To build the game minified for production. |
+| `npm install` | Install dependencies. |
+| `npm run start` | Launch browser with the game. <br> Press `Ctrl + c` to kill **http-server** process. |
+| `npm run deploy` | To build a minified game version for production. |
 
 Alternatively, if you have your own local web server installed, you could configure it to serve the `./index.html` file from the repo and you will get access to the examples interface.
