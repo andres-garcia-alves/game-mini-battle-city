@@ -1,3 +1,5 @@
+import { GameProgress } from "../entities/game-progress";
+
 export class WelcomeScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
@@ -7,13 +9,16 @@ export class WelcomeScene extends Phaser.Scene {
   private bgSwitch: boolean;
   private stageNumber: number;
 
+  private gameProgress: GameProgress;
+
   constructor() {
     super ({ key: "WelcomeScene" });
+    this.gameProgress = new GameProgress();
   }
 
-  public init(params): void {
+  public init(params: GameProgress): void {
     this.bgSwitch = false;
-    this.stageNumber = 0;
+    this.gameProgress.resetGameProgress();
   }
 
   public preload() {
@@ -42,14 +47,12 @@ export class WelcomeScene extends Phaser.Scene {
   public update(time): void {
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
-      this.scene.start("StageNumberScene", { stageNumber: this.stageNumber + 1 });
+      this.gameProgress.nextStage();
+      this.scene.start("StageNumberScene", this.gameProgress);
     }
   }
 
   private blinkBackground() {
-    /*const keyName: string = (this.bgSwitch) ? "welcome-background-01" : "welcome-background-02";
-    this.background = this.add.image(0, 0, keyName).setOrigin(0, 0);*/
-
     this.textStart.setVisible(this.bgSwitch);
     this.bgSwitch = !this.bgSwitch;
   }

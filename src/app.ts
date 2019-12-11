@@ -18,7 +18,6 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
   },
   render: { pixelArt: true, antialias: false },
   scene: [WelcomeScene, GameOverScene, ScoresScene, StageScene, StageNumberScene],
-  // scene: [StageScene, WelcomeScene, GameOverScene, ScoresScene, StageNumberScene],
   title: "Mini Battle City",
   type: Phaser.AUTO,
   width: 768,

@@ -1,6 +1,8 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
+import { GameProgress } from "../entities/game-progress";
+
 export class GameOverScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
@@ -9,7 +11,7 @@ export class GameOverScene extends Phaser.Scene {
     super ({ key: "GameOverScene" });
   }
 
-  public init(params): void {
+  public init(params: GameProgress): void {
     // .
   }
 

@@ -1,6 +1,6 @@
 export class ScriptManager {
 
-  public static parse(scene: Phaser.Scene, group: Phaser.Physics.Arcade.Group, data: string, callback?: (args: any) => void, callbackContext?: any) {
+  public static parse(scene: Phaser.Scene, enemies: Phaser.Physics.Arcade.Group, dataJSON: string, callback?: (args: any) => void, callbackContext?: any) {
 
     const JSON_KEY_ENEMIES: string = "enemies";
     const JSON_KEY_TYPE: string = "type";
@@ -13,9 +13,9 @@ export class ScriptManager {
     let posY: number = 0;
     let spriteKey: string = "";
 
-    const enemies = data[JSON_KEY_ENEMIES];
+    const enemiesJSON = dataJSON[JSON_KEY_ENEMIES];
 
-    enemies.forEach((element: any) => {
+    enemiesJSON.forEach((element: any) => {
       scene.time.delayedCall(element[JSON_KEY_DELAY], () => {
 
         count++;
@@ -23,11 +23,12 @@ export class ScriptManager {
         posY = SPAWN_Y;
         spriteKey = this.getSpriteKey(element[JSON_KEY_TYPE]);
 
-        const enemy = group.create(posX, posY, spriteKey);
+        const enemy = enemies.create(posX, posY, spriteKey);
         enemy.setBounce(0, 0);
         enemy.setCollideWorldBounds(true);
         enemy.setImmovable(true);
         enemy.setData("name", "enemy-" + count);
+        enemy.setData("type", element[JSON_KEY_TYPE]);
 
         if (callback !== undefined) { callback(callbackContext); }
       });

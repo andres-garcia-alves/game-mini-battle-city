@@ -8,8 +8,8 @@ import { PlayerTwoAnimations } from "../animations/player-two-animations";
 import { RegularEnemyAnimations } from "../animations/regular-enemy-animations";
 import { SpeedyEnemyAnimations } from "../animations/speedy-enemy-animations";
 
+import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
-import { Utils } from "../utilities/utils";
 
 export class StageScene extends Phaser.Scene {
 
@@ -36,9 +36,10 @@ export class StageScene extends Phaser.Scene {
   private player1: Phaser.Physics.Arcade.Sprite;
   private player2: Phaser.Physics.Arcade.Sprite;
 
-  private stageName: string;
-  private stageNumber: number;
+  private gameProgress: GameProgress;
 
+  private filesBaseKey: string;
+  private filesBaseUrl: string;
   private gameOver: boolean;
   private stageCompleted: boolean;
 
@@ -46,23 +47,22 @@ export class StageScene extends Phaser.Scene {
     super ({ key: "StageScene" });
   }
 
-  public init(params): void {
-    const keyName = "stageNumber";
-    this.stageNumber = params[keyName];
+  public init(params: GameProgress): void {
+    this.gameProgress = params;
+    this.gameProgress.resetStageStats();
 
-    if (this.stageNumber === undefined) { this.stageNumber = 1; }
-    this.stageName = Utils.buildStageName(this.stageNumber);
+    this.filesBaseKey = "game-stage" + this.gameProgress.getStageName();
+    this.filesBaseUrl = "assets/stages/stage" + this.gameProgress.getStageName();
 
     this.gameOver = false;
     this.stageCompleted = false;
-    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   public preload(): void {
     this.load.image("game-background", "assets/images/backgrounds/game-background.png");
 
-    this.load.tilemapTiledJSON(`game-stage${this.stageName}-tilemap`, `assets/stages/stage${this.stageName}-tilemap.json`);
-    this.load.json(`game-stage${this.stageName}-script`, `assets/stages/stage${this.stageName}-script.json`);
+    this.load.tilemapTiledJSON(this.filesBaseKey + "-tilemap", this.filesBaseUrl + "-tilemap.json");
+    this.load.json(this.filesBaseKey + "-script", this.filesBaseUrl + "-script.json");
     this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
 
     this.load.spritesheet("game-bullet", "assets/images/sprites/bullet.png", { frameWidth: 12, frameHeight: 12 });
@@ -76,13 +76,15 @@ export class StageScene extends Phaser.Scene {
     this.load.image("game-game-over", "assets/images/sprites/logo-game-over.png");
     this.load.image("game-level-count", "assets/images/sprites/logo-flag.png");
     this.load.image("game-lives-count", "assets/images/sprites/logo-lives.png");
+
+    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   public create(): void {
     this.background = this.add.image(0, 0, "game-background");
     this.background.setOrigin(0, 0);
 
-    const map = this.make.tilemap({ key: `game-stage${this.stageName}-tilemap` });
+    const map = this.make.tilemap({ key: this.filesBaseKey + "-tilemap" });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
     // this.gameLayer = map.createStaticLayer("game-layer", tileSet, 0, 0);
     this.gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
@@ -109,7 +111,6 @@ export class StageScene extends Phaser.Scene {
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
     this.player1.setData("direction", "up");
-    this.player1.setData("lives", 2);
     this.player1.setData("name", "player-one");
     PlayerOneAnimations.create(this);
 
@@ -117,23 +118,22 @@ export class StageScene extends Phaser.Scene {
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
     this.player2.setData("direction", "up");
-    this.player2.setData("lives", 2);
     this.player1.setData("name", "player-two");
     PlayerTwoAnimations.create(this);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
-    this.textLevelCount = this.add.bitmapText(720 , 600, "console-font", this.stageNumber.toString(), 24);
+    this.textLevelCount = this.add.bitmapText(720 , 600, "console-font", this.gameProgress.stageNumber.toString(), 24);
     this.textLevelCount.setTint(0x111111);
     this.logoLivesCount1 = this.add.image(708, 444, "game-lives-count");
     this.textLivesCount1A = this.add.bitmapText(696, 408, "console-font", "IP", 24);
     this.textLivesCount1A.setTint(0x111111);
-    this.textLivesCount1B = this.add.bitmapText(724, 432, "console-font", this.player1.getData("lives"), 24);
+    this.textLivesCount1B = this.add.bitmapText(724, 432, "console-font", this.gameProgress.playerOneLives.toString(), 24);
     this.textLivesCount1B.setTint(0x111111);
     this.logoLivesCount2 = this.add.image(708, 516, "game-lives-count");
     this.textLivesCount2A = this.add.bitmapText(696, 480, "console-font", "#P", 24);
     this.textLivesCount2A.setTint(0x111111);
-    this.textLivesCount2B = this.add.bitmapText(724, 504, "console-font", this.player2.getData("lives"), 24);
+    this.textLivesCount2B = this.add.bitmapText(724, 504, "console-font", this.gameProgress.playerTwoLives.toString(), 24);
     this.textLivesCount2B.setTint(0x111111);
     this.logoEnemiesCount = this.add.group();
     for (let i = 0; i < 10; i++) {
@@ -162,8 +162,8 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies);
     this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies);
 
-    const data = this.cache.json.get(`game-stage${this.stageName}-script`);
-    ScriptManager.parse(this, this.enemies, data, this.enemyCreated, this.logoEnemiesCount);
+    const dataJSON = this.cache.json.get(this.filesBaseKey + "-script");
+    ScriptManager.parse(this, this.enemies, dataJSON, this.enemyCreated, this.logoEnemiesCount);
   }
 
   public update(time): void {
@@ -200,11 +200,11 @@ export class StageScene extends Phaser.Scene {
     if (this.gameOver)        { this.stageFailed(); }
     if (this.stageCompleted)  { this.stageSucceeded(); }
 
-    if (this.cursors.shift.isDown && this.stageNumber < 3) {
+    if (this.cursors.shift.isDown && this.gameProgress.stageNumber < 3) {
       this.cursors.shift.reset();
       this.stageSucceeded();
     }
-    if (this.cursors.shift.isDown && this.stageNumber === 3) {
+    if (this.cursors.shift.isDown && this.gameProgress.stageNumber === 3) {
       this.cursors.space.reset();
       this.stageFailed();
     }
@@ -265,26 +265,39 @@ export class StageScene extends Phaser.Scene {
     bullet.anims.play(anim, true);
   }
 
-  private collitionDestroyBullet(src: any, dest: any): void {
-    this.bulletsPlayer1.remove(dest, true, true);
+  private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+    this.bulletsPlayer1.remove(dst, true, true);
   }
 
-  private collitionDestroyEnemy(src: any, dest: any): void {
+  private collitionDestroyEnemy(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+    const type = dst.getData("type");
+
+    if (type === "regular") {
+      this.gameProgress.playerOneRegularsCount += 1;
+    } else if (type === "speedy") {
+      this.gameProgress.playerOneSpeediesCount += 1;
+    } else if (type === "shooter") {
+      this.gameProgress.playerOneShootersCount += 1;
+    } else if (type === "heavy") {
+      this.gameProgress.playerOneHeaviesCount += 1;
+    }
+
+    this.enemies.remove(dst, true, true);
     this.bulletsPlayer1.remove(src, true, true);
-    this.enemies.remove(dest, true, true);
 
     if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
       this.stageCompleted = true;
     }
   }
 
-  private collitionDestroyFortress(src: any, dest: any): void {
+  private collitionDestroyFortress(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
     this.fortress.anims.play("game-anim-fortress-destroyed");
-    this.bulletsPlayer1.remove(dest, true, true);
+    this.bulletsPlayer1.remove(dst, true, true);
+
     this.gameOver = true;
   }
 
-  private collitionDestroyLayer(src: any, dest: any): void {
+  private collitionDestroyLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
 
     const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
     const direction = this.player1.getData("direction");
@@ -317,13 +330,13 @@ export class StageScene extends Phaser.Scene {
     this.bulletsPlayer1.remove(src, true, true);
   }
 
-  private collitionDestroyPlayer(): void {
+  private collitionDestroyPlayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
     // .
   }
 
   private stageSucceeded() {
-    this.time.delayedCall(3000, () => {
-      this.scene.start("ScoresScene", { stageNumber: this.stageNumber });
+    this.time.delayedCall(2000, () => {
+      this.scene.start("ScoresScene", this.gameProgress);
     });
   }
 
