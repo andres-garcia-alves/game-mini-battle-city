@@ -360,7 +360,6 @@ export class StageScene extends Phaser.Scene {
     if (this.sceneEnding) { return; }
     this.sceneEnding = true;
 
-    console.log(this.gameProgress);
     this.time.delayedCall(2000, () => { this.scene.start("ScoresScene", this.gameProgress); });
   }
 

@@ -3,6 +3,7 @@ export class ScriptManager {
   public static parse(scene: Phaser.Scene, enemies: Phaser.Physics.Arcade.Group, dataJSON: string, callback?: (args: any) => void, callbackContext?: any) {
 
     const JSON_KEY_ENEMIES: string = "enemies";
+    const JSON_KEY_NAME: string = "name";
     const JSON_KEY_TYPE: string = "type";
     const JSON_KEY_SPAWN: string = "spawn";
     const JSON_KEY_DELAY: string = "delay";
@@ -27,7 +28,7 @@ export class ScriptManager {
         enemy.setBounce(0, 0);
         enemy.setCollideWorldBounds(true);
         enemy.setImmovable(true);
-        enemy.setData("name", "enemy-" + count);
+        enemy.setData("name", element[JSON_KEY_NAME]);
         enemy.setData("type", element[JSON_KEY_TYPE]);
 
         if (callback !== undefined) { callback(callbackContext); }

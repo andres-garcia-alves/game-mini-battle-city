@@ -7,7 +7,6 @@ export class WelcomeScene extends Phaser.Scene {
   private textStart: Phaser.GameObjects.BitmapText;
 
   private bgSwitch: boolean;
-  private stageNumber: number;
 
   private gameProgress: GameProgress;
 
