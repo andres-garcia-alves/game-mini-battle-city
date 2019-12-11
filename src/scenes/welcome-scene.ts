@@ -2,7 +2,7 @@ export class WelcomeScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private startText: Phaser.GameObjects.BitmapText;
+  private textStart: Phaser.GameObjects.BitmapText;
 
   private bgSwitch: boolean;
   private stageNumber: number;
@@ -25,9 +25,8 @@ export class WelcomeScene extends Phaser.Scene {
     this.background = this.add.image(0, 0, "welcome-background").setOrigin(0, 0);
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.startText = this.add.bitmapText(172, 432, "console-font", "PLEASE INSERT COIN", 24);
-    this.startText.setDepth(1);
-    this.startText.setTint(0xEEEEEE);
+    this.textStart = this.add.bitmapText(172, 432, "console-font", "PLEASE INSERT COIN", 24);
+    this.textStart.setTint(0xEEEEEE);
 
     this.cameras.main.setScroll(0, -720);
     this.cameras.main.pan(384, 360, 2000, "Linear", false);
@@ -51,7 +50,7 @@ export class WelcomeScene extends Phaser.Scene {
     /*const keyName: string = (this.bgSwitch) ? "welcome-background-01" : "welcome-background-02";
     this.background = this.add.image(0, 0, keyName).setOrigin(0, 0);*/
 
-    this.startText.setVisible(this.bgSwitch);
+    this.textStart.setVisible(this.bgSwitch);
     this.bgSwitch = !this.bgSwitch;
   }
 }

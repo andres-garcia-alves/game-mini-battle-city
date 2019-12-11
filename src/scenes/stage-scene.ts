@@ -19,7 +19,13 @@ export class StageScene extends Phaser.Scene {
   private logoEnemiesCount: Phaser.GameObjects.Group;
   private logoGameOver: Phaser.GameObjects.Image;
   private logoLevelCount: Phaser.GameObjects.Image;
-  private logoLivesCount: Phaser.GameObjects.Image;
+  private textLevelCount: Phaser.GameObjects.BitmapText;
+  private logoLivesCount1: Phaser.GameObjects.Image;
+  private textLivesCount1A: Phaser.GameObjects.BitmapText;
+  private textLivesCount1B: Phaser.GameObjects.BitmapText;
+  private logoLivesCount2: Phaser.GameObjects.Image;
+  private textLivesCount2A: Phaser.GameObjects.BitmapText;
+  private textLivesCount2B: Phaser.GameObjects.BitmapText;
 
   private gameLayer: Phaser.Tilemaps.DynamicTilemapLayer;
   private bulletsEnemies: Phaser.Physics.Arcade.Group;
@@ -103,7 +109,7 @@ export class StageScene extends Phaser.Scene {
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
     this.player1.setData("direction", "up");
-    this.player1.setData("lives", 3);
+    this.player1.setData("lives", 2);
     this.player1.setData("name", "player-one");
     PlayerOneAnimations.create(this);
 
@@ -111,13 +117,24 @@ export class StageScene extends Phaser.Scene {
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
     this.player2.setData("direction", "up");
-    this.player2.setData("lives", 3);
+    this.player2.setData("lives", 2);
     this.player1.setData("name", "player-two");
     PlayerTwoAnimations.create(this);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
-    this.logoLivesCount = this.add.image(708, 444, "game-lives-count");
+    this.textLevelCount = this.add.bitmapText(720 , 600, "console-font", this.stageNumber.toString(), 24);
+    this.textLevelCount.setTint(0x111111);
+    this.logoLivesCount1 = this.add.image(708, 444, "game-lives-count");
+    this.textLivesCount1A = this.add.bitmapText(696, 408, "console-font", "IP", 24);
+    this.textLivesCount1A.setTint(0x111111);
+    this.textLivesCount1B = this.add.bitmapText(724, 432, "console-font", this.player1.getData("lives"), 24);
+    this.textLivesCount1B.setTint(0x111111);
+    this.logoLivesCount2 = this.add.image(708, 516, "game-lives-count");
+    this.textLivesCount2A = this.add.bitmapText(696, 480, "console-font", "#P", 24);
+    this.textLivesCount2A.setTint(0x111111);
+    this.textLivesCount2B = this.add.bitmapText(724, 504, "console-font", this.player2.getData("lives"), 24);
+    this.textLivesCount2B.setTint(0x111111);
     this.logoEnemiesCount = this.add.group();
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 2; j++) {
