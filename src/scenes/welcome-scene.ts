@@ -3,11 +3,10 @@ import { GameProgress } from "../entities/game-progress";
 export class WelcomeScene extends Phaser.Scene {
 
   private background: Phaser.GameObjects.Image;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private textStart: Phaser.GameObjects.BitmapText;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
-  private bgSwitch: boolean;
-
+  private blink: boolean;
   private gameProgress: GameProgress;
 
   constructor() {
@@ -15,8 +14,8 @@ export class WelcomeScene extends Phaser.Scene {
     this.gameProgress = new GameProgress();
   }
 
-  public init(params: GameProgress): void {
-    this.bgSwitch = false;
+  public init(params: any): void {
+    this.blink = false;
     this.gameProgress.resetGameProgress();
   }
 
@@ -47,12 +46,14 @@ export class WelcomeScene extends Phaser.Scene {
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
       this.gameProgress.nextStage();
+
+      // carga de la siguiente escena
       this.scene.start("StageNumberScene", this.gameProgress);
     }
   }
 
   private blinkBackground() {
-    this.textStart.setVisible(this.bgSwitch);
-    this.bgSwitch = !this.bgSwitch;
+    this.textStart.setVisible(this.blink);
+    this.blink = !this.blink;
   }
 }

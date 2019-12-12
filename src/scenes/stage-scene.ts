@@ -13,6 +13,9 @@ import { SpawnPointAnimations } from "../animations/spawn-point-animations";
 
 import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
+import { StateMachine } from "../scripting/state-machine";
+
+import { EnemiesState } from "../state/enemies-state";
 import { PlayerState } from "../state/player-state";
 
 export class StageScene extends Phaser.Scene {
@@ -204,8 +207,18 @@ export class StageScene extends Phaser.Scene {
 
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
-      this.createBulletPlayer1();
+      this.createBulletForPlayer1();
     }
+
+    this.enemies.getChildren().forEach((element: Phaser.Physics.Arcade.Sprite) => {
+
+      const enemyName = element.getData("name").toString();
+      const enemyMovement = StateMachine.getMovement(enemyName);
+      const enemyShooting = StateMachine.getShooting(enemyName);
+
+      EnemiesState.processMovement(element, enemyMovement);
+      if (enemyShooting) { this.createBulletForEnemy(element); }
+    });
 
     if (this.gameOver && !this.sceneEnding)        { this.stageFailed(); }
     if (this.stageCompleted && !this.sceneEnding)  { this.stageSucceeded(); }
@@ -224,7 +237,7 @@ export class StageScene extends Phaser.Scene {
     logoEnemiesCount.remove(logoEnemiesCount.getLast(true), true, true);
   }
 
-  private createBulletPlayer1() {
+  private createBulletForPlayer1() {
 
     if (this.bulletsPlayer1.getLength() > 0) { return; }
 
@@ -272,6 +285,10 @@ export class StageScene extends Phaser.Scene {
     bullet.setVelocity(velX, velY);
     bullet.setData("name", "bullet");
     bullet.anims.play(anim, true);
+  }
+
+  private createBulletForEnemy(enemy: Phaser.Physics.Arcade.Sprite) {
+    // TODO !!!
   }
 
   private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {

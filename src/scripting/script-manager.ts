@@ -1,3 +1,8 @@
+// tslint:disable-next-line: no-reference
+/// <reference path="../../types/phaser.d.ts" />
+
+import { StateMachine } from "./state-machine";
+
 export class ScriptManager {
 
   public static parse(scene: Phaser.Scene, enemies: Phaser.Physics.Arcade.Group, dataJSON: string, callback?: (args: any) => void, callbackContext?: any) {
@@ -40,6 +45,8 @@ export class ScriptManager {
           enemy.setData("name", element[JSON_KEY_NAME]);
           enemy.setData("type", element[JSON_KEY_TYPE]);
           enemy.setImmovable(true);
+
+          StateMachine.register(element[JSON_KEY_NAME]);
 
           if (callback !== undefined) { callback(callbackContext); }
 
