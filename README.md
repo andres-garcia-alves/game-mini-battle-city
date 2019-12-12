@@ -1,6 +1,6 @@
 # Mini Battle City
 
-A Battle City (NES) HTML5 clon, developed using Phaser 3 & TypeScript.
+A HTML5 Battle City (NES) clon using Phaser 3 & TypeScript.
 
 Developed for subject 'Lenguajes de Programación', on CAECE University, Buenos Aires, Argentina.
 
