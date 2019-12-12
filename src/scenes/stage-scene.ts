@@ -9,6 +9,7 @@ import { EnemiesSpeedyAnimations } from "../animations/enemies-speedy-animations
 import { FortressAnimations } from "../animations/fortress-animations";
 import { PlayerOneAnimations } from "../animations/player-one-animations";
 import { PlayerTwoAnimations } from "../animations/player-two-animations";
+import { SpawnPointAnimations } from "../animations/spawn-point-animations";
 
 import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
@@ -72,20 +73,25 @@ export class StageScene extends Phaser.Scene {
 
     this.load.spritesheet("game-bullet", "assets/images/sprites/bullet.png", { frameWidth: 12, frameHeight: 12 });
     this.load.spritesheet("game-bullet-explosion", "assets/images/sprites/bullet-explosion.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player-one", "assets/images/sprites/player-one.png", { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet("game-player-two", "assets/images/sprites/player-two.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-enemy-regular", "assets/images/sprites/enemy-regular.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-enemy-speedy", "assets/images/sprites/enemy-speedy.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-enemy-shooter", "assets/images/sprites/enemy-shooter.png", { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet("game-enemy-heavy", "assets/images/sprites/enemy-heavy.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-fortress", "assets/images/sprites/fortress.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player-one", "assets/images/sprites/player-one.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-player-two", "assets/images/sprites/player-two.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-points", "assets/images/sprites/game-points.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-spawn-blink", "assets/images/sprites/spawn-blink.png", { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet("game-tank-explosion", "assets/images/sprites/tank-explosion.png", { frameWidth: 96, frameHeight: 96 });
 
     this.load.image("game-enemies-count", "assets/images/sprites/logo-enemies.png");
     this.load.image("game-game-over", "assets/images/sprites/logo-game-over.png");
     this.load.image("game-level-count", "assets/images/sprites/logo-flag.png");
     this.load.image("game-lives-count", "assets/images/sprites/logo-lives.png");
+    this.load.image("game-spawn-point", "assets/images/sprites/spawn-point.png");
 
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.resetCursorKeys();
   }
 
   public create(): void {
@@ -103,33 +109,25 @@ export class StageScene extends Phaser.Scene {
     this.bulletsEnemies = this.physics.add.group();
     this.bulletsPlayer1 = this.physics.add.group();
     this.bulletsPlayer2 = this.physics.add.group();
-    BulletAnimations.create(this);
 
     this.enemies = this.physics.add.group();
-    EnemiesHeavyAnimations.create(this);
-    EnemiesRegularAnimations.create(this);
-    EnemiesShooterAnimations.create(this);
-    EnemiesSpeedyAnimations.create(this);
 
     this.fortress = this.physics.add.staticSprite(360, 648, "game-fortress");
     this.fortress.setBounce(0, 0);
     this.fortress.setCollideWorldBounds(true);
     this.fortress.setImmovable(true);
-    FortressAnimations.create(this);
 
     this.player1 = this.physics.add.sprite(264, 648, "game-player-one");
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
     this.player1.setData("direction", "up");
     this.player1.setData("name", "player-one");
-    PlayerOneAnimations.create(this);
 
     this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
     this.player2.setData("direction", "up");
     this.player1.setData("name", "player-two");
-    PlayerTwoAnimations.create(this);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
@@ -151,6 +149,16 @@ export class StageScene extends Phaser.Scene {
         this.logoEnemiesCount.create(708 + (j * 24), 84 + (i * 24), "game-enemies-count");
       }
     }
+
+    BulletAnimations.create(this);
+    EnemiesHeavyAnimations.create(this);
+    EnemiesRegularAnimations.create(this);
+    EnemiesShooterAnimations.create(this);
+    EnemiesSpeedyAnimations.create(this);
+    FortressAnimations.create(this);
+    PlayerOneAnimations.create(this);
+    PlayerTwoAnimations.create(this);
+    SpawnPointAnimations.create(this);
 
     this.physics.add.collider(this.player1, this.player2);
     this.physics.add.collider(this.player1, this.frameLayer);
@@ -179,7 +187,7 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
     this.physics.add.collider(this.bulletsEnemies, this.player2);
     this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.gameLayer); // FALTA ACA !!!
+    this.physics.add.collider(this.bulletsEnemies, this.gameLayer); // ToDo: FALTA ACA !!!
     this.physics.add.collider(this.bulletsEnemies, this.fortress);
 
     const dataJSON = this.cache.json.get(this.filesBaseKey + "-script");
@@ -225,7 +233,7 @@ export class StageScene extends Phaser.Scene {
       this.stageSucceeded();
     }
     if (this.cursors.shift.isDown && this.gameProgress.stageNumber === this.gameProgress.MAX_STAGE) {
-      this.cursors.space.reset();
+      this.cursors.shift.reset();
       this.stageFailed();
     }
   }
@@ -286,10 +294,14 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    src.anims.play("game-anim-bullet-explosion", true);
-    this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
-    // dst.anims.play("game-anim-bullet-explosion", true);
-    // this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
+    if (src.getData !== undefined && src.getData("name") === "bullet") {
+      src.anims.play("game-anim-bullet-explosion", true);
+      this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+    }
+    if (dst.getData !== undefined && dst.getData("name") === "bullet") {
+      dst.anims.play("game-anim-bullet-explosion", true);
+      this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
+    }
   }
 
   private collitionDestroyBullets(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
@@ -298,24 +310,36 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyEnemy(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+
+    let anim = "";
     const type = dst.getData("type");
 
     if (type === "regular") {
       this.gameProgress.playerOneRegularsCount += 1;
+      anim = "game-anim-regular-explosion";
     } else if (type === "speedy") {
       this.gameProgress.playerOneSpeediesCount += 1;
+      anim = "game-anim-speedy-explosion";
     } else if (type === "shooter") {
       this.gameProgress.playerOneShootersCount += 1;
+      anim = "game-anim-shooter-explosion";
     } else if (type === "heavy") {
       this.gameProgress.playerOneHeaviesCount += 1;
+      anim = "game-anim-heavy-explosion";
     }
 
-    this.enemies.remove(dst, true, true);
-    this.bulletsPlayer1.remove(src, true, true);
+    src.anims.play("game-anim-bullet-explosion", true);
+    this.time.delayedCall(150, () => {
+      this.bulletsPlayer1.remove(src, true, true);
+    });
 
-    if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
-      this.stageCompleted = true;
-    }
+    (dst.body as Phaser.Physics.Arcade.Body).enable = false;
+    dst.anims.play("game-anim-regular-explosion", true);
+
+    this.time.delayedCall(1000, () => {
+      this.enemies.remove(dst, true, true);
+      this.checkStageCompleted();
+    });
   }
 
   private collitionDestroyFortress(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
@@ -364,6 +388,21 @@ export class StageScene extends Phaser.Scene {
 
   private collitionDestroyPlayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
     // .
+  }
+
+  private checkStageCompleted(): void {
+    if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
+      this.stageCompleted = true;
+    }
+  }
+
+  private resetCursorKeys(): void {
+    this.cursors.down.reset();
+    this.cursors.left.reset();
+    this.cursors.right.reset();
+    this.cursors.shift.reset();
+    this.cursors.space.reset();
+    this.cursors.up.reset();
   }
 
   private stageSucceeded() {

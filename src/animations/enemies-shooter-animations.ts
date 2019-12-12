@@ -9,8 +9,10 @@ export class EnemiesShooterAnimations {
     const SHOOTER_ENEMY_RIGHT: string = "game-anim-shooter-enemy-right";
     const SHOOTER_ENEMY_DOWN: string = "game-anim-shooter-enemy-down";
     const SHOOTER_ENEMY_LEFT: string = "game-anim-shooter-enemy-left";
+    const SHOOTER_ENEMY_EXPLOSION: string = "game-anim-shooter-explosion";
 
     const KEY_ENEMY_SHOOTER: string = "game-enemy-shooter";
+    const KEY_TANK_EXPLOSION: string = "game-tank-explosion";
 
     if (scene.anims.get(SHOOTER_ENEMY_UP) === undefined) {
       scene.anims.create({
@@ -46,6 +48,19 @@ export class EnemiesShooterAnimations {
         key: SHOOTER_ENEMY_LEFT,
         repeat: 0,
       });
+    }
+
+    if (scene.anims.get(SHOOTER_ENEMY_EXPLOSION) === undefined) {
+      const anim: false | Phaser.Animations.Animation = scene.anims.create({
+        frameRate: 9,
+        frames: scene.anims.generateFrameNumbers(KEY_TANK_EXPLOSION, { start: 0, end: 5 }),
+        key: SHOOTER_ENEMY_EXPLOSION,
+        repeat: 0,
+      });
+      if (anim) {
+        const animFrame = scene.anims.generateFrameNumbers("game-points", { start: 2, end: 2 });
+        (anim as Phaser.Animations.Animation).addFrame(animFrame);
+      }
     }
   }
 }

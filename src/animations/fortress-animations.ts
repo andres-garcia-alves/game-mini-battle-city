@@ -1,3 +1,6 @@
+// tslint:disable-next-line: no-reference
+/// <reference path="../../types/phaser.d.ts" />
+
 export class FortressAnimations {
 
   public static create(scene: Phaser.Scene): void {

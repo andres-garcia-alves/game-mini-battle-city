@@ -9,43 +9,67 @@ export class ScriptManager {
     const JSON_KEY_DELAY: string = "delay";
     const SPAWN_Y = 72;
 
-    let count: number = 0;
     let posX: number = 0;
     let posY: number = 0;
     let spriteKey: string = "";
+
+    this.spawnPointLeft = scene.add.sprite(this.getPosX("left"), SPAWN_Y, "game-spawn-point");
+    this.spawnPointCenter = scene.add.sprite(this.getPosX("center"), SPAWN_Y, "game-spawn-point");
+    this.spawnPointRight = scene.add.sprite(this.getPosX("right"), SPAWN_Y, "game-spawn-point");
 
     const enemiesJSON = dataJSON[JSON_KEY_ENEMIES];
 
     enemiesJSON.forEach((element: any) => {
       scene.time.delayedCall(element[JSON_KEY_DELAY], () => {
 
-        count++;
-        posX = this.getPosX(element[JSON_KEY_SPAWN]);
-        posY = SPAWN_Y;
-        spriteKey = this.getSpriteKey(element[JSON_KEY_TYPE]);
+        const spawnPoint = this.selectSpawnPoint(element[JSON_KEY_SPAWN]);
+        spawnPoint.setAlpha(0.8);
+        spawnPoint.setVisible(true);
+        spawnPoint.setDepth(1);
+        spawnPoint.anims.play("game-anim-spawn-point-blink", true);
 
-        const enemy = enemies.create(posX, posY, spriteKey);
-        enemy.setBounce(0, 0);
-        enemy.setCollideWorldBounds(true);
-        enemy.setImmovable(true);
-        enemy.setData("name", element[JSON_KEY_NAME]);
-        enemy.setData("type", element[JSON_KEY_TYPE]);
+        scene.time.delayedCall(900, () => {
 
-        if (callback !== undefined) { callback(callbackContext); }
+          posX = this.getPosX(element[JSON_KEY_SPAWN]);
+          posY = SPAWN_Y;
+          spriteKey = this.getSpriteKey(element[JSON_KEY_TYPE]);
+
+          const enemy: Phaser.Physics.Arcade.Sprite = enemies.create(posX, posY, spriteKey, 4);
+          enemy.setBounce(0, 0);
+          enemy.setCollideWorldBounds(true);
+          enemy.setData("name", element[JSON_KEY_NAME]);
+          enemy.setData("type", element[JSON_KEY_TYPE]);
+          enemy.setImmovable(true);
+
+          if (callback !== undefined) { callback(callbackContext); }
+
+        });
       });
     });
   }
 
-  private static getPosX(pos: string): number {
+  private static spawnPointLeft: Phaser.GameObjects.Sprite;
+  private static spawnPointCenter: Phaser.GameObjects.Sprite;
+  private static spawnPointRight: Phaser.GameObjects.Sprite;
+
+  private static selectSpawnPoint(spawn: string): Phaser.GameObjects.Sprite {
+
+    spawn = spawn.toLowerCase();
+    if (spawn === "left")   { return this.spawnPointLeft; }
+    if (spawn === "center") { return this.spawnPointCenter; }
+    if (spawn === "right")  { return this.spawnPointRight; }
+  }
+
+  private static getPosX(spawn: string): number {
 
     const SPAWN_X_LEFT = 72;
     const SPAWN_X_CENTER = 360;
     const SPAWN_X_RIGHT = 648;
 
-    pos = pos.toLowerCase();
-    if (pos === "left")   { return SPAWN_X_LEFT; }
-    if (pos === "center") { return SPAWN_X_CENTER; }
-    if (pos === "right")  { return SPAWN_X_RIGHT; }
+    spawn = spawn.toLowerCase();
+    if (spawn === "left")   { return SPAWN_X_LEFT; }
+    if (spawn === "center") { return SPAWN_X_CENTER; }
+    if (spawn === "right")  { return SPAWN_X_RIGHT; }
   }
 
   private static getSpriteKey(type: string): string {
