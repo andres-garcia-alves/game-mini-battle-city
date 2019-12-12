@@ -13,6 +13,7 @@ import { SpawnPointAnimations } from "../animations/spawn-point-animations";
 
 import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
+import { PlayerState } from "../state/player-state";
 
 export class StageScene extends Phaser.Scene {
 
@@ -89,12 +90,13 @@ export class StageScene extends Phaser.Scene {
     this.load.image("game-level-count", "assets/images/sprites/logo-flag.png");
     this.load.image("game-lives-count", "assets/images/sprites/logo-lives.png");
     this.load.image("game-spawn-point", "assets/images/sprites/spawn-point.png");
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.resetCursorKeys();
   }
 
   public create(): void {
+
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.resetCursorKeys();
+
     this.background = this.add.image(0, 0, "game-background");
     this.background.setOrigin(0, 0);
 
@@ -197,28 +199,8 @@ export class StageScene extends Phaser.Scene {
   public update(time): void {
 
     if (this.player1.body === undefined) { return; }
-    this.player1.setVelocity(0, 0);
 
-    if (this.cursors.up.isDown) {
-      this.player1.anims.play("game-anim-player01-up", true);
-      this.player1.setVelocity(0, -160);
-      this.player1.setData("direction", "up");
-
-    } else if (this.cursors.right.isDown) {
-      this.player1.anims.play("game-anim-player01-right", true);
-      this.player1.setVelocity(160, 0);
-      this.player1.setData("direction", "right");
-
-    } else if (this.cursors.down.isDown) {
-      this.player1.anims.play("game-anim-player01-down", true);
-      this.player1.setVelocity(0, 160);
-      this.player1.setData("direction", "down");
-
-    } else if (this.cursors.left.isDown) {
-      this.player1.anims.play("game-anim-player01-left", true);
-      this.player1.setVelocity(-160, 0);
-      this.player1.setData("direction", "left");
-    }
+    PlayerState.processMovement(this.player1, this.cursors);
 
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
@@ -248,7 +230,6 @@ export class StageScene extends Phaser.Scene {
 
     const BULLET_SPEED = 360;
     const BULLET_DELTA = 24 - 1; // -1 for tiles coordinates
-    const direction = this.player1.getData("direction");
 
     let anim: string = "";
     let posX: number = 0;
@@ -256,28 +237,28 @@ export class StageScene extends Phaser.Scene {
     let velX: number = 0;
     let velY: number = 0;
 
-    if (direction === "up") {
+    if (PlayerState.isDirectionUp()) {
       anim = "game-anim-bullet-up";
       posX = this.player1.x;
       posY = this.player1.y - BULLET_DELTA;
       velX = 0;
       velY = -BULLET_SPEED;
     }
-    if (direction === "right") {
+    if (PlayerState.isDirectionRight()) {
       anim = "game-anim-bullet-right";
       posX = this.player1.x + BULLET_DELTA;
       posY = this.player1.y;
       velX = BULLET_SPEED;
       velY = 0;
     }
-    if (direction === "down") {
+    if (PlayerState.isDirectionDown()) {
       anim = "game-anim-bullet-down";
       posX = this.player1.x;
       posY = this.player1.y + BULLET_DELTA;
       velX = 0;
       velY = BULLET_SPEED;
     }
-    if (direction === "left") {
+    if (PlayerState.isDirectionLeft()) {
       anim = "game-anim-bullet-left";
       posX = this.player1.x - BULLET_DELTA;
       posY = this.player1.y;
@@ -357,28 +338,26 @@ export class StageScene extends Phaser.Scene {
     src.anims.play("game-anim-bullet-explosion", true);
     this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
 
-    // BUG: es la dire de la bala, no del player al momento (muy posterior) en el que esta impacta
-    const direction = this.player1.getData("direction");
-
-    if (direction === "up") {
+    // BUG: es la dire de la bala !! no del player al momento (muy posterior) en el que esta impacta
+    if (PlayerState.isDirectionUp()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y - 1);
     }
-    if (direction === "right") {
+    if (PlayerState.isDirectionRight()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
     }
-    if (direction === "down") {
+    if (PlayerState.isDirectionDown()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y + 1);
     }
-    if (direction === "left") {
+    if (PlayerState.isDirectionLeft()) {
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y);
@@ -405,18 +384,20 @@ export class StageScene extends Phaser.Scene {
     this.cursors.up.reset();
   }
 
-  private stageSucceeded() {
-    if (this.sceneEnding) { return; }
-    this.sceneEnding = true;
-
-    this.time.delayedCall(2000, () => { this.scene.start("ScoresScene", this.gameProgress); });
-  }
-
   private stageFailed() {
     if (this.sceneEnding) { return; }
     this.sceneEnding = true;
 
     this.tweens.add({ duration: 2000, ease: "Back", repeat: 0, targets: this.logoGameOver, y: "342", yoyo: false });
     this.time.delayedCall(3000, () => { this.scene.start("GameOverScene"); });
+  }
+
+  private stageSucceeded() {
+    if (this.sceneEnding) { return; }
+    this.sceneEnding = true;
+
+    this.time.delayedCall(2000, () => {
+      this.resetCursorKeys();
+      this.scene.start("ScoresScene", this.gameProgress); });
   }
 }
