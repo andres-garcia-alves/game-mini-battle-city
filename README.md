@@ -5,7 +5,7 @@ A HTML5 Battle City (NES) clon using Phaser 3 & TypeScript.
 Developed for subject 'Lenguajes de Programación', on CAECE University, Buenos Aires, Argentina.
 
 This is the first public release of this proyect.
-If you want, please send to me your feedback about the game: andres.garcia.alves@gmail.com
+If you want, please send me your feedback about this game: andres.garcia.alves@gmail.com
 
 ### Screenshots
 
