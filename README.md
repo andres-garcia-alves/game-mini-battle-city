@@ -21,6 +21,13 @@ If you want, please send me your feedback about this game: andres.garcia.alves@g
 |------------------|------------------|
 | ![](assets/images/screenshots/screenshot-scores.png) | ![](assets/images/screenshots/screenshot-game-over.png) |
 
+### Coming Next
+
+- Aditional stages (currently only the first 3)
+- Power Ups!
+- Player-Two complete funtionality
+- Sounds & Music
+
 ### Requirements
 
 If you want to run this project then you need [Node.js](https://nodejs.org) installed.
