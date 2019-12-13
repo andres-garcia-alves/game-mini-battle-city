@@ -2,26 +2,25 @@ import { StateMachineEnemy } from "../entities/state-machine-enemy";
 
 export class StateMachine {
 
-  public static stateMachineEnemies: any[];
-
   public static MOV_THRESHOLD_MAX = 4;
   public static MOV_THRESHOLD_MIN = 0;
   public static SHOOT_THRESHOLD_MAX = 3;
   public static SHOOT_THRESHOLD_MIN = 0;
 
+  public static stateMachineEnemies: any[];
+
   public static register(key: string): void {
 
     if (this.stateMachineEnemies === undefined) { this.stateMachineEnemies = new Array(0); }
 
-    const newEnemy = new StateMachineEnemy(key);
-    newEnemy.key = key;
-    newEnemy.movementCounter = 0;
-    newEnemy.movementThreshold = this.nextFpsThreshold(this.MOV_THRESHOLD_MIN, this.MOV_THRESHOLD_MAX);
-    newEnemy.movementValue = Phaser.DOWN; // this.nextMovementValue();
-    newEnemy.shootingCounter = 0;
-    newEnemy.shootingThreshold = this.nextFpsThreshold(this.SHOOT_THRESHOLD_MIN, this.SHOOT_THRESHOLD_MAX);
+    const enemy = new StateMachineEnemy(key);
+    enemy.movementCounter = 0;
+    enemy.movementThreshold = this.nextFpsThreshold(this.MOV_THRESHOLD_MIN, this.MOV_THRESHOLD_MAX);
+    enemy.movementValue = Phaser.DOWN; // this.nextMovementValue();
+    enemy.shootingCounter = 0;
+    enemy.shootingThreshold = this.nextFpsThreshold(this.SHOOT_THRESHOLD_MIN, this.SHOOT_THRESHOLD_MAX);
 
-    this.stateMachineEnemies.push(newEnemy);
+    this.stateMachineEnemies.push(enemy);
   }
 
   public static getMovement(key: string): number {

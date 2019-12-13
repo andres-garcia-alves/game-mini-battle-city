@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
-export class PlayerState {
+export class StateControlPlayer {
 
   public static PLAYER_SPEED: number = 160;
 
@@ -13,26 +13,22 @@ export class PlayerState {
     player.setVelocity(0, 0);
 
     if (cursors.up.isDown) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.UP;
+      this.setNewDirection(Phaser.UP);
       player.anims.play("game-anim-player01-up", true);
       player.setVelocity(0, -this.PLAYER_SPEED);
 
     } else if (cursors.right.isDown) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.RIGHT;
+      this.setNewDirection(Phaser.RIGHT);
       player.anims.play("game-anim-player01-right", true);
       player.setVelocity(this.PLAYER_SPEED, 0);
 
     } else if (cursors.down.isDown) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.DOWN;
+      this.setNewDirection(Phaser.DOWN);
       player.anims.play("game-anim-player01-down", true);
       player.setVelocity(0, this.PLAYER_SPEED);
 
     } else if (cursors.left.isDown) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.LEFT;
+      this.setNewDirection(Phaser.LEFT);
       player.anims.play("game-anim-player01-left", true);
       player.setVelocity(-this.PLAYER_SPEED, 0);
     }
@@ -59,5 +55,10 @@ export class PlayerState {
 
   public static isDirectionUp(): boolean {
     return (this.currentDirection === Phaser.UP);
+  }
+
+  private static setNewDirection(direction: number) {
+    this.previousDirection = this.currentDirection;
+    this.currentDirection = direction;
   }
 }

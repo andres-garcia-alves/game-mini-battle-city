@@ -1,6 +1,7 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../../types/phaser.d.ts" />
 
+import { StateControlEnemies } from "../state-control/state-enemies";
 import { StateMachine } from "./state-machine";
 
 export class ScriptManager {
@@ -43,10 +44,12 @@ export class ScriptManager {
           enemy.setBounce(0, 0);
           enemy.setCollideWorldBounds(true);
           enemy.setData("name", element[JSON_KEY_NAME]);
+          enemy.setData("stop", false);
           enemy.setData("type", element[JSON_KEY_TYPE]);
           enemy.setImmovable(false);
 
           StateMachine.register(element[JSON_KEY_NAME]);
+          StateControlEnemies.register(element[JSON_KEY_NAME]);
 
           if (callback !== undefined) { callback(callbackContext); }
         });

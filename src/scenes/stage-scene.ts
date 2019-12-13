@@ -15,8 +15,8 @@ import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
 import { StateMachine } from "../scripting/state-machine";
 
-import { EnemiesState } from "../state/enemies-state";
-import { PlayerState } from "../state/player-state";
+import { StateControlEnemies } from "../state-control/state-enemies";
+import { StateControlPlayer } from "../state-control/state-player";
 
 export class StageScene extends Phaser.Scene {
 
@@ -204,7 +204,7 @@ export class StageScene extends Phaser.Scene {
 
     if (this.player1.body === undefined) { return; }
 
-    PlayerState.processMovement(this.player1, this.cursors);
+    StateControlPlayer.processMovement(this.player1, this.cursors);
 
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
@@ -217,7 +217,7 @@ export class StageScene extends Phaser.Scene {
       const enemyMovement = StateMachine.getMovement(enemyName);
       const enemyShooting = StateMachine.getShooting(enemyName);
 
-      EnemiesState.processMovement(element, enemyMovement);
+      StateControlEnemies.processMovement(element, enemyMovement);
       // if (enemyShooting) { this.createBulletForEnemy(element); }
     });
 
@@ -247,28 +247,28 @@ export class StageScene extends Phaser.Scene {
     let velX: number = 0;
     let velY: number = 0;
 
-    if (PlayerState.isDirectionUp()) {
+    if (StateControlPlayer.isDirectionUp()) {
       anim = "game-anim-bullet-up";
       posX = this.player1.x;
       posY = this.player1.y - BULLET_DELTA;
       velX = 0;
       velY = -BULLET_SPEED;
     }
-    if (PlayerState.isDirectionRight()) {
+    if (StateControlPlayer.isDirectionRight()) {
       anim = "game-anim-bullet-right";
       posX = this.player1.x + BULLET_DELTA;
       posY = this.player1.y;
       velX = BULLET_SPEED;
       velY = 0;
     }
-    if (PlayerState.isDirectionDown()) {
+    if (StateControlPlayer.isDirectionDown()) {
       anim = "game-anim-bullet-down";
       posX = this.player1.x;
       posY = this.player1.y + BULLET_DELTA;
       velX = 0;
       velY = BULLET_SPEED;
     }
-    if (PlayerState.isDirectionLeft()) {
+    if (StateControlPlayer.isDirectionLeft()) {
       anim = "game-anim-bullet-left";
       posX = this.player1.x - BULLET_DELTA;
       posY = this.player1.y;
@@ -351,25 +351,25 @@ export class StageScene extends Phaser.Scene {
     this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
 
     // BUG: es la dire de la bala !! no del player al momento (muy posterior) en el que esta impacta
-    if (PlayerState.isDirectionUp()) {
+    if (StateControlPlayer.isDirectionUp()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y - 1);
     }
-    if (PlayerState.isDirectionRight()) {
+    if (StateControlPlayer.isDirectionRight()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
     }
-    if (PlayerState.isDirectionDown()) {
+    if (StateControlPlayer.isDirectionDown()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y + 1);
     }
-    if (PlayerState.isDirectionLeft()) {
+    if (StateControlPlayer.isDirectionLeft()) {
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y);
@@ -384,7 +384,7 @@ export class StageScene extends Phaser.Scene {
   private enemyCreated(logoEnemiesCount: Phaser.GameObjects.Group) {
     logoEnemiesCount.remove(logoEnemiesCount.getLast(true), true, true);
   }
-  
+
   private checkStageCompleted(): void {
     if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
       this.stageCompleted = true;
