@@ -10,33 +10,35 @@ export class EnemiesState {
 
   public static processMovement(enemy: Phaser.Physics.Arcade.Sprite, enemyMovement: number): void {
 
+    const stop: boolean = enemy.getData("stop");
+    const type: string = enemy.getData("type");
+
+    if (stop) { return; }
+
     enemy.setVelocity(0, 0);
 
     if (enemyMovement === Phaser.UP) {
       // this.previousDirection = this.currentDirection;
       // this.currentDirection = Phaser.UP;
-      enemy.anims.play("game-anim-regular-enemy-up", true);
-      // enemy.anims.play("game-anim-speedy-enemy-up", true);
-      // enemy.anims.play("game-anim-shooter-enemy-up", true);
-      // enemy.anims.play("game-anim-heavy-enemy-up", true);
+      enemy.anims.play("game-anim-" + type + "-enemy-up", true);
       enemy.setVelocity(0, -this.ENEMIES_SPEED);
 
     } else if (enemyMovement === Phaser.RIGHT) {
       // this.previousDirection = this.currentDirection;
       // this.currentDirection = Phaser.RIGHT;
-      enemy.anims.play("game-anim-regular-enemy-right", true);
+      enemy.anims.play("game-anim-" + type + "-enemy-right", true);
       enemy.setVelocity(this.ENEMIES_SPEED, 0);
 
     } else if (enemyMovement === Phaser.DOWN) {
       // this.previousDirection = this.currentDirection;
       // this.currentDirection = Phaser.DOWN;
-      enemy.anims.play("game-anim-regular-enemy-down", true);
-      enemy.setVelocity(0, this.ENEMIES_SPEED);
+        enemy.anims.play("game-anim-" + type + "-enemy-down", true);
+        enemy.setVelocity(0, this.ENEMIES_SPEED);
 
     } else if (enemyMovement === Phaser.LEFT) {
       // this.previousDirection = this.currentDirection;
       // this.currentDirection = Phaser.LEFT;
-      enemy.anims.play("game-anim-regular-enemy-left", true);
+      enemy.anims.play("game-anim-" + type + "-enemy-left", true);
       enemy.setVelocity(-this.ENEMIES_SPEED, 0);
     }
 

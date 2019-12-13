@@ -4,7 +4,7 @@ export class StateMachine {
 
   public static stateMachineEnemies: any[];
 
-  public static MOV_THRESHOLD_MAX = 5;
+  public static MOV_THRESHOLD_MAX = 4;
   public static MOV_THRESHOLD_MIN = 0;
   public static SHOOT_THRESHOLD_MAX = 3;
   public static SHOOT_THRESHOLD_MIN = 0;

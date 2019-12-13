@@ -44,7 +44,7 @@ export class ScriptManager {
           enemy.setCollideWorldBounds(true);
           enemy.setData("name", element[JSON_KEY_NAME]);
           enemy.setData("type", element[JSON_KEY_TYPE]);
-          enemy.setImmovable(true);
+          enemy.setImmovable(false);
 
           StateMachine.register(element[JSON_KEY_NAME]);
 

@@ -118,6 +118,7 @@ export class StageScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
 
     this.fortress = this.physics.add.staticSprite(360, 648, "game-fortress");
+    this.fortress.refreshBody();
     this.fortress.setBounce(0, 0);
     this.fortress.setCollideWorldBounds(true);
     this.fortress.setImmovable(true);
@@ -126,13 +127,13 @@ export class StageScene extends Phaser.Scene {
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
     this.player1.setData("name", "player-one");
-    this.player1.setImmovable(true);
+    this.player1.setImmovable(false);
 
     this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
     this.player2.setData("name", "player-two");
-    // this.player2.setImmovable(true);
+    this.player2.setImmovable(false);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
@@ -233,10 +234,6 @@ export class StageScene extends Phaser.Scene {
     }
   }
 
-  private enemyCreated(logoEnemiesCount: Phaser.GameObjects.Group) {
-    logoEnemiesCount.remove(logoEnemiesCount.getLast(true), true, true);
-  }
-
   private createBulletForPlayer1() {
 
     if (this.bulletsPlayer1.getLength() > 0) { return; }
@@ -285,6 +282,7 @@ export class StageScene extends Phaser.Scene {
     bullet.setVelocity(velX, velY);
     bullet.setData("name", "bullet");
     bullet.anims.play(anim, true);
+    // bullet.setImmovable(true);
   }
 
   private createBulletForEnemy(enemy: Phaser.Physics.Arcade.Sprite) {
@@ -309,31 +307,27 @@ export class StageScene extends Phaser.Scene {
 
   private collitionDestroyEnemy(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
 
-    let anim = "";
-    const type = dst.getData("type");
-
-    if (type === "regular") {
-      this.gameProgress.playerOneRegularsCount += 1;
-      anim = "game-anim-regular-explosion";
-    } else if (type === "speedy") {
-      this.gameProgress.playerOneSpeediesCount += 1;
-      anim = "game-anim-speedy-explosion";
-    } else if (type === "shooter") {
-      this.gameProgress.playerOneShootersCount += 1;
-      anim = "game-anim-shooter-explosion";
-    } else if (type === "heavy") {
-      this.gameProgress.playerOneHeaviesCount += 1;
-      anim = "game-anim-heavy-explosion";
-    }
-
     src.anims.play("game-anim-bullet-explosion", true);
     this.time.delayedCall(150, () => {
       this.bulletsPlayer1.remove(src, true, true);
     });
 
-    // (dst.body as Phaser.Physics.Arcade.Body).enable = false;
-    // dst.anims.play("game-anim-regular-explosion", true);
-    dst.anims.play("game-anim-bullet-explosion", true);
+    const type = dst.getData("type");
+    const anim = "game-anim-" + type + "-explosion";
+
+    if (type === "regular") {
+      this.gameProgress.playerOneRegularsCount += 1;
+    } else if (type === "speedy") {
+      this.gameProgress.playerOneSpeediesCount += 1;
+    } else if (type === "shooter") {
+      this.gameProgress.playerOneShootersCount += 1;
+    } else if (type === "heavy") {
+      this.gameProgress.playerOneHeaviesCount += 1;
+    }
+
+    (dst.body as Phaser.Physics.Arcade.Body).enable = false;
+    dst.setData("stop", true);
+    dst.anims.play(anim, true);
 
     this.time.delayedCall(1000, () => {
       this.enemies.remove(dst, true, true);
@@ -387,6 +381,10 @@ export class StageScene extends Phaser.Scene {
     // .
   }
 
+  private enemyCreated(logoEnemiesCount: Phaser.GameObjects.Group) {
+    logoEnemiesCount.remove(logoEnemiesCount.getLast(true), true, true);
+  }
+  
   private checkStageCompleted(): void {
     if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
       this.stageCompleted = true;
