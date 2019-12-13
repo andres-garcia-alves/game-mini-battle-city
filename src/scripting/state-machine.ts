@@ -1,46 +1,64 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/phaser.d.ts" />
+import { StateMachineEnemy } from "../entities/state-machine-enemy";
 
 export class StateMachine {
 
+  public static stateMachineEnemies: any[];
+
+  public static MOV_THRESHOLD_MAX = 5;
+  public static MOV_THRESHOLD_MIN = 0;
+  public static SHOOT_THRESHOLD_MAX = 3;
+  public static SHOOT_THRESHOLD_MIN = 0;
+
   public static register(key: string): void {
 
-    // ToDo: continuar aca !!!
-    // this.enemies.
+    if (this.stateMachineEnemies === undefined) { this.stateMachineEnemies = new Array(0); }
 
+    const newEnemy = new StateMachineEnemy(key);
+    newEnemy.key = key;
+    newEnemy.movementCounter = 0;
+    newEnemy.movementThreshold = this.nextFpsThreshold(this.MOV_THRESHOLD_MIN, this.MOV_THRESHOLD_MAX);
+    newEnemy.movementValue = Phaser.DOWN; // this.nextMovementValue();
+    newEnemy.shootingCounter = 0;
+    newEnemy.shootingThreshold = this.nextFpsThreshold(this.SHOOT_THRESHOLD_MIN, this.SHOOT_THRESHOLD_MAX);
+
+    this.stateMachineEnemies.push(newEnemy);
   }
 
   public static getMovement(key: string): number {
 
-    this.movementCounter += 1;
-    if (this.movementCounter === this.movementThreshold) {
-      this.movementCounter = 0;
-      this.movementThreshold = Phaser.Math.RND.integerInRange(0, 5000) * 60;
-      this.movementValue = Phaser.Math.RND.integerInRange(5, 8);
+    const stateMachineEnemy = this.stateMachineEnemies.filter((a) => a.key === key)[0];
+    if (stateMachineEnemy === undefined) { return null; }
+
+    stateMachineEnemy.movementCounter += 1;
+    if (stateMachineEnemy.movementCounter === stateMachineEnemy.movementThreshold) {
+      stateMachineEnemy.movementCounter = 0;
+      stateMachineEnemy.movementThreshold = this.nextFpsThreshold(this.MOV_THRESHOLD_MIN, this.MOV_THRESHOLD_MAX);
+      stateMachineEnemy.movementValue = this.nextMovementValue();
     }
 
-    return this.movementValue;
+    return stateMachineEnemy.movementValue;
   }
 
   public static getShooting(key: string): boolean {
 
-    this.shootingCounter += 1;
-    if (this.shootingCounter === this.shootingThreshold) {
-      this.shootingCounter = 0;
-      this.shootingThreshold = Phaser.Math.RND.integerInRange(0, 5000) * 60;
+    const stateMachineEnemy = this.stateMachineEnemies.filter((a) => a.key === key)[0];
+    if (stateMachineEnemy === undefined) { return null; }
+
+    stateMachineEnemy.shootingCounter += 1;
+    if (stateMachineEnemy.shootingCounter === stateMachineEnemy.shootingThreshold) {
+      stateMachineEnemy.shootingCounter = 0;
+      stateMachineEnemy.shootingThreshold = this.nextFpsThreshold(this.SHOOT_THRESHOLD_MIN, this.SHOOT_THRESHOLD_MAX);
       return true;
     }
 
     return false;
   }
 
-  // ToDo: Mofificar para manejar los 20 enemigos independientes en simultáneo !!!
-  private static enemies: any;
+  private static nextMovementValue(): number {
+    return Phaser.Math.RND.integerInRange(5, 8);
+  }
 
-  private static movementCounter: number;
-  private static movementThreshold: number;
-  private static movementValue: number;
-
-  private static shootingCounter: number;
-  private static shootingThreshold: number;
+  private static nextFpsThreshold(thresholdMin: number, thresholdMax: number): number {
+    return Phaser.Math.RND.integerInRange(thresholdMin, thresholdMax) * 60; // 60 fps
+  }
 }

@@ -49,7 +49,6 @@ export class ScriptManager {
           StateMachine.register(element[JSON_KEY_NAME]);
 
           if (callback !== undefined) { callback(callbackContext); }
-
         });
       });
     });

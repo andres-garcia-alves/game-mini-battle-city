@@ -3,6 +3,8 @@
 
 export class PlayerState {
 
+  public static PLAYER_SPEED: number = 160;
+
   public static currentDirection: number;
   public static previousDirection: number;
 
@@ -14,25 +16,25 @@ export class PlayerState {
       this.previousDirection = this.currentDirection;
       this.currentDirection = Phaser.UP;
       player.anims.play("game-anim-player01-up", true);
-      player.setVelocity(0, -160);
+      player.setVelocity(0, -this.PLAYER_SPEED);
 
     } else if (cursors.right.isDown) {
       this.previousDirection = this.currentDirection;
       this.currentDirection = Phaser.RIGHT;
       player.anims.play("game-anim-player01-right", true);
-      player.setVelocity(160, 0);
+      player.setVelocity(this.PLAYER_SPEED, 0);
 
     } else if (cursors.down.isDown) {
       this.previousDirection = this.currentDirection;
       this.currentDirection = Phaser.DOWN;
       player.anims.play("game-anim-player01-down", true);
-      player.setVelocity(0, 160);
+      player.setVelocity(0, this.PLAYER_SPEED);
 
     } else if (cursors.left.isDown) {
       this.previousDirection = this.currentDirection;
       this.currentDirection = Phaser.LEFT;
       player.anims.play("game-anim-player01-left", true);
-      player.setVelocity(-160, 0);
+      player.setVelocity(-this.PLAYER_SPEED, 0);
     }
 
     // align to grid on direction change

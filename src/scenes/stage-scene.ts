@@ -125,14 +125,14 @@ export class StageScene extends Phaser.Scene {
     this.player1 = this.physics.add.sprite(264, 648, "game-player-one");
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
-    this.player1.setData("direction", "up");
     this.player1.setData("name", "player-one");
+    this.player1.setImmovable(true);
 
     this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
-    this.player2.setData("direction", "up");
-    this.player1.setData("name", "player-two");
+    this.player2.setData("name", "player-two");
+    // this.player2.setImmovable(true);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
@@ -217,7 +217,7 @@ export class StageScene extends Phaser.Scene {
       const enemyShooting = StateMachine.getShooting(enemyName);
 
       EnemiesState.processMovement(element, enemyMovement);
-      if (enemyShooting) { this.createBulletForEnemy(element); }
+      // if (enemyShooting) { this.createBulletForEnemy(element); }
     });
 
     if (this.gameOver && !this.sceneEnding)        { this.stageFailed(); }
@@ -307,7 +307,7 @@ export class StageScene extends Phaser.Scene {
     this.bulletsEnemies.remove(dst, true, true);
   }
 
-  private collitionDestroyEnemy(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+  private collitionDestroyEnemy(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
 
     let anim = "";
     const type = dst.getData("type");
@@ -331,8 +331,9 @@ export class StageScene extends Phaser.Scene {
       this.bulletsPlayer1.remove(src, true, true);
     });
 
-    (dst.body as Phaser.Physics.Arcade.Body).enable = false;
-    dst.anims.play("game-anim-regular-explosion", true);
+    // (dst.body as Phaser.Physics.Arcade.Body).enable = false;
+    // dst.anims.play("game-anim-regular-explosion", true);
+    dst.anims.play("game-anim-bullet-explosion", true);
 
     this.time.delayedCall(1000, () => {
       this.enemies.remove(dst, true, true);

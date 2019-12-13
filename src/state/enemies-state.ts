@@ -3,6 +3,8 @@
 
 export class EnemiesState {
 
+  public static ENEMIES_SPEED: number = 80;
+
   public static currentDirection: number;
   public static previousDirection: number;
 
@@ -11,38 +13,38 @@ export class EnemiesState {
     enemy.setVelocity(0, 0);
 
     if (enemyMovement === Phaser.UP) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.UP;
-      // enemy.anims.play("game-anim-regular-enemy-up", true);
+      // this.previousDirection = this.currentDirection;
+      // this.currentDirection = Phaser.UP;
+      enemy.anims.play("game-anim-regular-enemy-up", true);
       // enemy.anims.play("game-anim-speedy-enemy-up", true);
       // enemy.anims.play("game-anim-shooter-enemy-up", true);
       // enemy.anims.play("game-anim-heavy-enemy-up", true);
-      enemy.setVelocity(0, -160);
+      enemy.setVelocity(0, -this.ENEMIES_SPEED);
 
     } else if (enemyMovement === Phaser.RIGHT) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.RIGHT;
-      // enemy.anims.play("game-anim-regular-enemy-right", true);
-      enemy.setVelocity(160, 0);
+      // this.previousDirection = this.currentDirection;
+      // this.currentDirection = Phaser.RIGHT;
+      enemy.anims.play("game-anim-regular-enemy-right", true);
+      enemy.setVelocity(this.ENEMIES_SPEED, 0);
 
     } else if (enemyMovement === Phaser.DOWN) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.DOWN;
-      // enemy.anims.play("game-anim-regular-enemy-down", true);
-      enemy.setVelocity(0, 160);
+      // this.previousDirection = this.currentDirection;
+      // this.currentDirection = Phaser.DOWN;
+      enemy.anims.play("game-anim-regular-enemy-down", true);
+      enemy.setVelocity(0, this.ENEMIES_SPEED);
 
     } else if (enemyMovement === Phaser.LEFT) {
-      this.previousDirection = this.currentDirection;
-      this.currentDirection = Phaser.LEFT;
-      // enemy.anims.play("game-anim-regular-enemy-left", true);
-      enemy.setVelocity(-160, 0);
+      // this.previousDirection = this.currentDirection;
+      // this.currentDirection = Phaser.LEFT;
+      enemy.anims.play("game-anim-regular-enemy-left", true);
+      enemy.setVelocity(-this.ENEMIES_SPEED, 0);
     }
 
     // align to grid on direction change
     if (this.currentDirection !== this.previousDirection) {
-      const newPosX = Phaser.Math.Snap.To(enemy.x, 24);
-      const newPosY = Phaser.Math.Snap.To(enemy.y, 24);
-      enemy.setPosition(newPosX, newPosY);
+      // const newPosX = Phaser.Math.Snap.To(enemy.x, 24);
+      // const newPosY = Phaser.Math.Snap.To(enemy.y, 24);
+      // enemy.setPosition(newPosX, newPosY);
     }
   }
 
