@@ -244,7 +244,7 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.bulletsEnemies, this.player2);
     this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
     this.physics.add.collider(this.bulletsEnemies, this.gameLayer, this.collitionDestroyGameLayer, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.fortress);
+    this.physics.add.collider(this.bulletsEnemies, this.fortress, this.collitionDestroyFortress, null, this);
   }
 
   private createBulletForPlayerOne() {
@@ -410,7 +410,7 @@ export class StageScene extends Phaser.Scene {
       this.gameProgress.playerOneHeaviesCount += 1;
     }
 
-    (dst.body as Phaser.Physics.Arcade.Body).enable = false;
+    dst.body.enable = false;
     dst.setData("stop", true);
     dst.anims.play(anim, true);
 
@@ -421,7 +421,9 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyFortress(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
+
     this.fortress.anims.play("game-anim-fortress-destroyed");
+
     this.bulletsPlayer1.remove(dst, true, true);
     this.bulletsEnemies.remove(dst, true, true);
 
@@ -471,17 +473,24 @@ export class StageScene extends Phaser.Scene {
   }
 
   private collitionDestroyPlayer(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
-    // TODO !!!
+
+    dst.anims.play("game-anim-bullet-explosion", true);
+    dst.body.enable = false;
+    this.bulletsEnemies.remove(dst, true, true);
+
+    this.gameProgress.playerOneLives -= 1;
+
+    if (this.gameProgress.playerOneLives >= 0) {
+      this.textLivesCount1B.setText(this.gameProgress.playerOneLives.toString());
+      this.player1.setPosition(264, 648);
+
+    } else {
+      this.gameOver = true;
+    }
   }
 
   private enemyCreated(logoEnemiesCount: Phaser.GameObjects.Group) {
     logoEnemiesCount.remove(logoEnemiesCount.getLast(true), true, true);
-  }
-
-  private checkStageCompleted(): void {
-    if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
-      this.stageCompleted = true;
-    }
   }
 
   private resetCursorKeys(): void {
@@ -491,6 +500,12 @@ export class StageScene extends Phaser.Scene {
     this.cursors.shift.reset();
     this.cursors.space.reset();
     this.cursors.up.reset();
+  }
+
+  private checkStageCompleted(): void {
+    if (this.logoEnemiesCount.getLength() === 0 && this.enemies.getLength() === 0) {
+      this.stageCompleted = true;
+    }
   }
 
   private stageFailed() {
