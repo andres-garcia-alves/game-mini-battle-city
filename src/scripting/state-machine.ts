@@ -2,9 +2,9 @@ import { StateMachineEnemy } from "../entities/state-machine-enemy";
 
 export class StateMachine {
 
-  public static MOV_THRESHOLD_MAX = 4;
+  public static MOV_THRESHOLD_MAX = 4 * 60; // 60 fps
   public static MOV_THRESHOLD_MIN = 0;
-  public static SHOOT_THRESHOLD_MAX = 3;
+  public static SHOOT_THRESHOLD_MAX = 4 * 60; // 60 fps
   public static SHOOT_THRESHOLD_MIN = 0;
 
   public static stateMachineEnemies: any[];
@@ -58,6 +58,6 @@ export class StateMachine {
   }
 
   private static nextFpsThreshold(thresholdMin: number, thresholdMax: number): number {
-    return Phaser.Math.RND.integerInRange(thresholdMin, thresholdMax) * 60; // 60 fps
+    return Phaser.Math.RND.integerInRange(thresholdMin, thresholdMax);
   }
 }

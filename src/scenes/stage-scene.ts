@@ -156,45 +156,8 @@ export class StageScene extends Phaser.Scene {
       }
     }
 
-    BulletAnimations.create(this);
-    EnemiesHeavyAnimations.create(this);
-    EnemiesRegularAnimations.create(this);
-    EnemiesShooterAnimations.create(this);
-    EnemiesSpeedyAnimations.create(this);
-    FortressAnimations.create(this);
-    PlayerOneAnimations.create(this);
-    PlayerTwoAnimations.create(this);
-    SpawnPointAnimations.create(this);
-
-    this.physics.add.collider(this.player1, this.player2);
-    this.physics.add.collider(this.player1, this.frameLayer);
-    this.physics.add.collider(this.player2, this.frameLayer);
-    this.physics.add.collider(this.player1, this.gameLayer);
-    this.physics.add.collider(this.player2, this.gameLayer);
-    this.physics.add.collider(this.player1, this.fortress);
-    this.physics.add.collider(this.player2, this.fortress);
-    this.physics.add.collider(this.player1, this.enemies);
-    this.physics.add.collider(this.player2, this.enemies);
-    this.physics.add.collider(this.enemies, this.frameLayer);
-    this.physics.add.collider(this.enemies, this.gameLayer);
-    this.physics.add.collider(this.enemies, this.fortress);
-    this.physics.add.collider(this.bulletsPlayer1, this.player2, this.collitionDestroyBullet, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.player1);
-    this.physics.add.collider(this.bulletsPlayer1, this.frameLayer, this.collitionDestroyBullet, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.frameLayer);
-    this.physics.add.collider(this.bulletsPlayer1, this.gameLayer, this.collitionDestroyGameLayer, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.gameLayer);
-    this.physics.add.collider(this.bulletsPlayer1, this.fortress, this.collitionDestroyFortress, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.fortress);
-    this.physics.add.collider(this.bulletsPlayer1, this.enemies, this.collitionDestroyEnemy, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.enemies);
-    this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies, this.collitionDestroyBullets, null, this);
-    this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies);
-    this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.player2);
-    this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.gameLayer); // ToDo: FALTA ACA !!!
-    this.physics.add.collider(this.bulletsEnemies, this.fortress);
+    this.setupAnimations();
+    this.setupCollitions();
 
     const dataJSON = this.cache.json.get(this.filesBaseKey + "-script");
     ScriptManager.parse(this, this.enemies, dataJSON, this.enemyCreated, this.logoEnemiesCount);
@@ -208,7 +171,7 @@ export class StageScene extends Phaser.Scene {
 
     if (this.cursors.space.isDown) {
       this.cursors.space.reset();
-      this.createBulletForPlayer1();
+      this.createBulletForPlayerOne();
     }
 
     this.enemies.getChildren().forEach((element: Phaser.Physics.Arcade.Sprite) => {
@@ -218,7 +181,7 @@ export class StageScene extends Phaser.Scene {
       const enemyShooting = StateMachine.getShooting(enemyName);
 
       StateControlEnemies.processMovement(element, enemyMovement);
-      // if (enemyShooting) { this.createBulletForEnemy(element); }
+      if (enemyShooting) { this.createBulletForEnemy(element); }
     });
 
     if (this.gameOver && !this.sceneEnding)        { this.stageFailed(); }
@@ -234,7 +197,56 @@ export class StageScene extends Phaser.Scene {
     }
   }
 
-  private createBulletForPlayer1() {
+  private setupAnimations(): void {
+    BulletAnimations.create(this);
+    EnemiesHeavyAnimations.create(this);
+    EnemiesRegularAnimations.create(this);
+    EnemiesShooterAnimations.create(this);
+    EnemiesSpeedyAnimations.create(this);
+    FortressAnimations.create(this);
+    PlayerOneAnimations.create(this);
+    PlayerTwoAnimations.create(this);
+    SpawnPointAnimations.create(this);
+  }
+
+  private setupCollitions(): void {
+    this.physics.add.collider(this.player1, this.player2);
+    this.physics.add.collider(this.player1, this.frameLayer);
+    this.physics.add.collider(this.player1, this.gameLayer);
+    this.physics.add.collider(this.player1, this.fortress);
+    this.physics.add.collider(this.player1, this.enemies);
+
+    this.physics.add.collider(this.player2, this.frameLayer);
+    this.physics.add.collider(this.player2, this.gameLayer);
+    this.physics.add.collider(this.player2, this.fortress);
+    this.physics.add.collider(this.player2, this.enemies);
+
+    this.physics.add.collider(this.enemies, this.frameLayer);
+    this.physics.add.collider(this.enemies, this.gameLayer);
+    this.physics.add.collider(this.enemies, this.fortress);
+
+    this.physics.add.collider(this.bulletsPlayer1, this.player2, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.frameLayer, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.gameLayer, this.collitionDestroyGameLayer, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.fortress, this.collitionDestroyFortress, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.enemies, this.collitionDestroyEnemy, null, this);
+    this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies, this.collitionDestroyBullets, null, this);
+
+    this.physics.add.collider(this.bulletsPlayer2, this.player1);
+    this.physics.add.collider(this.bulletsPlayer2, this.frameLayer);
+    this.physics.add.collider(this.bulletsPlayer2, this.gameLayer);
+    this.physics.add.collider(this.bulletsPlayer2, this.fortress);
+    this.physics.add.collider(this.bulletsPlayer2, this.enemies);
+    this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies);
+
+    this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
+    this.physics.add.collider(this.bulletsEnemies, this.player2);
+    this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsEnemies, this.gameLayer, this.collitionDestroyGameLayer, null, this);
+    this.physics.add.collider(this.bulletsEnemies, this.fortress);
+  }
+
+  private createBulletForPlayerOne() {
 
     if (this.bulletsPlayer1.getLength() > 0) { return; }
 
@@ -279,24 +291,78 @@ export class StageScene extends Phaser.Scene {
     const bullet = this.bulletsPlayer1.create(posX, posY, "game-bullet");
     bullet.setBounce(0, 0);
     bullet.setCollideWorldBounds(true);
+    bullet.setData("name", "player-one-bullet");
     bullet.setVelocity(velX, velY);
-    bullet.setData("name", "bullet");
     bullet.anims.play(anim, true);
-    // bullet.setImmovable(true);
   }
 
   private createBulletForEnemy(enemy: Phaser.Physics.Arcade.Sprite) {
-    // TODO !!!
+
+    // if (this.bulletsEnemies.getLength() > 0) { return; }
+    // ToDo: Limitar a 1 disparo a la vez por enemigo
+
+    const BULLET_SPEED = 360;
+    const BULLET_DELTA = 24 - 1; // -1 for tiles coordinates
+
+    let anim: string = "";
+    let posX: number = 0;
+    let posY: number = 0;
+    let velX: number = 0;
+    let velY: number = 0;
+
+    if (StateControlEnemies.isDirectionUp(enemy)) {
+      anim = "game-anim-bullet-up";
+      posX = enemy.x;
+      posY = enemy.y - BULLET_DELTA;
+      velX = 0;
+      velY = -BULLET_SPEED;
+    }
+    if (StateControlEnemies.isDirectionRight(enemy)) {
+      anim = "game-anim-bullet-right";
+      posX = enemy.x + BULLET_DELTA;
+      posY = enemy.y;
+      velX = BULLET_SPEED;
+      velY = 0;
+    }
+    if (StateControlEnemies.isDirectionDown(enemy)) {
+      anim = "game-anim-bullet-down";
+      posX = enemy.x;
+      posY = enemy.y + BULLET_DELTA;
+      velX = 0;
+      velY = BULLET_SPEED;
+    }
+    if (StateControlEnemies.isDirectionLeft(enemy)) {
+      anim = "game-anim-bullet-left";
+      posX = enemy.x - BULLET_DELTA;
+      posY = enemy.y;
+      velX = -BULLET_SPEED;
+      velY = 0;
+    }
+
+    const bullet = this.bulletsEnemies.create(posX, posY, "game-bullet");
+    bullet.setBounce(0, 0);
+    bullet.setCollideWorldBounds(true);
+    bullet.setData("name", "enemy-bullet");
+    bullet.setVelocity(velX, velY);
+    bullet.anims.play(anim, true);
   }
 
   private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    if (src.getData !== undefined && src.getData("name") === "bullet") {
+    if (src.getData !== undefined && src.getData("name") === "player-one-bullet") {
       src.anims.play("game-anim-bullet-explosion", true);
       this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
     }
-    if (dst.getData !== undefined && dst.getData("name") === "bullet") {
+    if (src.getData !== undefined && src.getData("name") === "enemy-bullet") {
+      src.anims.play("game-anim-bullet-explosion", true);
+      this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
+    }
+    if (dst.getData !== undefined && dst.getData("name") === "player-one-bullet") {
       dst.anims.play("game-anim-bullet-explosion", true);
       this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
+    }
+    if (src.getData !== undefined && src.getData("name") === "enemy-bullet") {
+      src.anims.play("game-anim-bullet-explosion", true);
+      this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
     }
   }
 
@@ -345,12 +411,19 @@ export class StageScene extends Phaser.Scene {
 
   private collitionDestroyGameLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
 
+    src.anims.play("game-anim-bullet-explosion", true);
+
+    const name: string = src.getData("name");
     const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
 
-    src.anims.play("game-anim-bullet-explosion", true);
-    this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+    if (name === "player-one-bullet") {
+      this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+    }
+    if (name === "enemy-bullet") {
+      this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
+    }
 
-    // BUG: es la dire de la bala !! no del player al momento (muy posterior) en el que esta impacta
+    // BUG: es la dire de la bala !! no del Player al momento (muy posterior) en el que esta impacta
     if (StateControlPlayer.isDirectionUp()) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
