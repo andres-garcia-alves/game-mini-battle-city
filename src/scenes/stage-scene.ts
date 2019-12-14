@@ -15,6 +15,7 @@ import { GameProgress } from "../entities/game-progress";
 import { ScriptManager } from "../scripting/script-manager";
 import { StateMachine } from "../scripting/state-machine";
 
+import { StateControlBullets } from "../state-control/state-bullets";
 import { StateControlEnemies } from "../state-control/state-enemies";
 import { StateControlPlayer } from "../state-control/state-player";
 
@@ -288,12 +289,16 @@ export class StageScene extends Phaser.Scene {
       velY = 0;
     }
 
-    const bullet = this.bulletsPlayer1.create(posX, posY, "game-bullet");
+    const bullet: Phaser.Physics.Arcade.Sprite = this.bulletsPlayer1.create(posX, posY, "game-bullet");
     bullet.setBounce(0, 0);
     bullet.setCollideWorldBounds(true);
     bullet.setData("name", "player-one-bullet");
+    bullet.setData("key", Phaser.Math.RND.integer());
     bullet.setVelocity(velX, velY);
     bullet.anims.play(anim, true);
+
+    const bulletDirection = StateControlPlayer.getDirection();
+    StateControlBullets.register(bullet.getData("name"), bullet.getData("key"), bulletDirection);
   }
 
   private createBulletForEnemy(enemy: Phaser.Physics.Arcade.Sprite) {
@@ -339,34 +344,48 @@ export class StageScene extends Phaser.Scene {
       velY = 0;
     }
 
-    const bullet = this.bulletsEnemies.create(posX, posY, "game-bullet");
+    const bullet: Phaser.Physics.Arcade.Sprite = this.bulletsEnemies.create(posX, posY, "game-bullet");
     bullet.setBounce(0, 0);
     bullet.setCollideWorldBounds(true);
     bullet.setData("name", "enemy-bullet");
+    bullet.setData("key", Phaser.Math.RND.integer());
     bullet.setVelocity(velX, velY);
     bullet.anims.play(anim, true);
+
+    const bulletDirection = StateControlEnemies.getDirection(enemy);
+    StateControlBullets.register(bullet.getData("name"), bullet.getData("key"), bulletDirection);
   }
 
-  private collitionDestroyBullet(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    if (src.getData !== undefined && src.getData("name") === "player-one-bullet") {
+  private collitionDestroyBullet(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
+
+    if (src.getData !== undefined) {
+
       src.anims.play("game-anim-bullet-explosion", true);
-      this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+      // StateControlBullets.unregister(src.getData("name"), src.getData("key"));
+
+      if (src.getData("name") === "player-one-bullet") {
+        this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
+      }
+      if (src.getData("name") === "enemy-bullet") {
+        this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
+      }
     }
-    if (src.getData !== undefined && src.getData("name") === "enemy-bullet") {
-      src.anims.play("game-anim-bullet-explosion", true);
-      this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
-    }
-    if (dst.getData !== undefined && dst.getData("name") === "player-one-bullet") {
+
+    if (dst.getData !== undefined) {
+
       dst.anims.play("game-anim-bullet-explosion", true);
-      this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
-    }
-    if (src.getData !== undefined && src.getData("name") === "enemy-bullet") {
-      src.anims.play("game-anim-bullet-explosion", true);
-      this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
+      // StateControlBullets.unregister(dst.getData("name"), dst.getData("key"));
+
+      if (dst.getData !== undefined && dst.getData("name") === "player-one-bullet") {
+        this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(dst, true, true); });
+      }
+      if (dst.getData !== undefined && dst.getData("name") === "enemy-bullet") {
+        this.time.delayedCall(150, () => { this.bulletsEnemies.remove(dst, true, true); });
+      }
     }
   }
 
-  private collitionDestroyBullets(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+  private collitionDestroyBullets(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
     this.bulletsPlayer1.remove(src, true, true);
     this.bulletsEnemies.remove(dst, true, true);
   }
@@ -401,7 +420,7 @@ export class StageScene extends Phaser.Scene {
     });
   }
 
-  private collitionDestroyFortress(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+  private collitionDestroyFortress(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
     this.fortress.anims.play("game-anim-fortress-destroyed");
     this.bulletsPlayer1.remove(dst, true, true);
     this.bulletsEnemies.remove(dst, true, true);
@@ -409,7 +428,7 @@ export class StageScene extends Phaser.Scene {
     this.gameOver = true;
   }
 
-  private collitionDestroyGameLayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
+  private collitionDestroyGameLayer(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
 
     src.anims.play("game-anim-bullet-explosion", true);
 
@@ -423,26 +442,27 @@ export class StageScene extends Phaser.Scene {
       this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
     }
 
-    // BUG: es la dire de la bala !! no del Player al momento (muy posterior) en el que esta impacta
-    if (StateControlPlayer.isDirectionUp()) {
+    // console.log("dir", StateControlBullets.getDirection(src));
+
+    if (StateControlBullets.isDirectionUp(src)) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y - 1);
     }
-    if (StateControlPlayer.isDirectionRight()) {
+    if (StateControlBullets.isDirectionRight(src)) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y);
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
     }
-    if (StateControlPlayer.isDirectionDown()) {
+    if (StateControlBullets.isDirectionDown(src)) {
       this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
       this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y + 1);
     }
-    if (StateControlPlayer.isDirectionLeft()) {
+    if (StateControlBullets.isDirectionLeft(src)) {
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 2);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
       this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y);
@@ -450,8 +470,8 @@ export class StageScene extends Phaser.Scene {
     }
   }
 
-  private collitionDestroyPlayer(src: Phaser.GameObjects.Sprite, dst: Phaser.GameObjects.Sprite): void {
-    // .
+  private collitionDestroyPlayer(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
+    // TODO !!!
   }
 
   private enemyCreated(logoEnemiesCount: Phaser.GameObjects.Group) {

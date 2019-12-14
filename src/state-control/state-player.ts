@@ -41,6 +41,10 @@ export class StateControlPlayer {
     }
   }
 
+  public static getDirection(): number {
+    return this.currentDirection;
+  }
+
   public static isDirectionDown(): boolean {
     return (this.currentDirection === Phaser.DOWN);
   }

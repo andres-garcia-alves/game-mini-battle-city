@@ -55,6 +55,13 @@ export class StateControlEnemies {
     }
   }
 
+  public static getDirection(enemy: Phaser.Physics.Arcade.Sprite): number {
+    const stateControlEnemy: StateControlEnemy = this.getStateControlEnemy(enemy);
+    if (stateControlEnemy === undefined) { return null; }
+
+    return stateControlEnemy.currentDirection;
+  }
+
   public static isDirectionDown(enemy: Phaser.Physics.Arcade.Sprite): boolean {
     const stateControlEnemy: StateControlEnemy = this.getStateControlEnemy(enemy);
     if (stateControlEnemy === undefined) { return null; }
@@ -85,7 +92,6 @@ export class StateControlEnemies {
 
   private static getStateControlEnemy(enemy: Phaser.Physics.Arcade.Sprite): StateControlEnemy {
     const key: string = enemy.getData("name");
-
     return this.stateControlEnemies.filter((a) => a.key === key)[0];
   }
 }
