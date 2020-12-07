@@ -23,14 +23,17 @@ module.exports = {
     devtool: 'cheap-source-map',
     output: {
         pathinfo: true,
-        path: path.resolve(__dirname, 'dist'),
-        publicPath: './dist/',
+        path: path.resolve(__dirname, 'build'),
+        publicPath: './build/',
         filename: 'bundle.js'
     },
     watch: true,
     plugins: [
         definePlugin,
-        new webpack.optimize.CommonsChunkPlugin({ name: 'vendor'/* chunkName= */, filename: 'vendor.bundle.js'/* filename= */ }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'vendor', /* chunkName */
+            filename: 'vendor.bundle.js' /* filename */
+        }),
         new HtmlWebpackPlugin({
             filename: '../index.html',
             template: './src/index.html',
