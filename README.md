@@ -38,7 +38,7 @@ If you want to run this project then you need [Node.js](https://nodejs.org) inst
 
 &nbsp;
 
-This is the first public release of this proyect.  
+This is the first public release of this project.  
 Developed for subject 'Lenguajes de Programación', at CAECE University, Buenos Aires, Argentina.
 
 Please send me your feedback about this game: andres.garcia.alves@gmail.com
