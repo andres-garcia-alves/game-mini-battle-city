@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/phaser.d.ts" />
-
 import { BulletAnimations } from "../animations/bullet-animations";
 import { EnemiesHeavyAnimations } from "../animations/enemies-heavy-animations";
 import { EnemiesRegularAnimations } from "../animations/enemies-regular-animations";
@@ -35,8 +32,8 @@ export class StageScene extends Phaser.Scene {
   private textLivesCount2A: Phaser.GameObjects.BitmapText;
   private textLivesCount2B: Phaser.GameObjects.BitmapText;
 
-  private frameLayer: Phaser.Tilemaps.StaticTilemapLayer;
-  private gameLayer: Phaser.Tilemaps.DynamicTilemapLayer;
+  private frameLayer: Phaser.Tilemaps.TilemapLayer;
+  private gameLayer: Phaser.Tilemaps.TilemapLayer;
   private bulletsEnemies: Phaser.Physics.Arcade.Group;
   private bulletsPlayer1: Phaser.Physics.Arcade.Group;
   private bulletsPlayer2: Phaser.Physics.Arcade.Group;
@@ -106,11 +103,11 @@ export class StageScene extends Phaser.Scene {
 
     const map = this.make.tilemap({ key: this.filesBaseKey + "-tilemap" });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
-    this.frameLayer = map.createStaticLayer("frame-layer", tileSet, 0, 0);
+    this.frameLayer = map.createLayer("frame-layer", tileSet, 0, 0);
     this.frameLayer.setCollisionBetween(1, 9999, true, true);
-    this.gameLayer = map.createDynamicLayer("game-layer", tileSet, 0, 0);
+    this.gameLayer = map.createLayer("game-layer", tileSet, 0, 0);
     this.gameLayer.setCollisionBetween(1, 9999, true, true);
-    const aboveLayer = map.createStaticLayer("above-layer", tileSet, 0, 0).setDepth(2);
+    const aboveLayer = map.createLayer("above-layer", tileSet, 0, 0).setDepth(2);
 
     this.bulletsEnemies = this.physics.add.group();
     this.bulletsPlayer1 = this.physics.add.group();
@@ -118,23 +115,25 @@ export class StageScene extends Phaser.Scene {
 
     this.enemies = this.physics.add.group();
 
-    this.fortress = this.physics.add.staticSprite(360, 648, "game-fortress");
+    this.fortress = this.physics.add.sprite(360, 648, "game-fortress");
     this.fortress.refreshBody();
     this.fortress.setBounce(0, 0);
     this.fortress.setCollideWorldBounds(true);
     this.fortress.setImmovable(true);
 
     this.player1 = this.physics.add.sprite(264, 648, "game-player-one");
+    this.player1.setData("name", "player-one");
     this.player1.setBounce(0, 0);
     this.player1.setCollideWorldBounds(true);
-    this.player1.setData("name", "player-one");
     this.player1.setImmovable(false);
+    this.player1.setPushable(false);
 
     this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
+    this.player2.setData("name", "player-two");
     this.player2.setBounce(0, 0);
     this.player2.setCollideWorldBounds(true);
-    this.player2.setData("name", "player-two");
     this.player2.setImmovable(false);
+    this.player2.setPushable(false);
 
     this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
     this.logoLevelCount = this.add.image(720, 576, "game-level-count");
@@ -212,6 +211,7 @@ export class StageScene extends Phaser.Scene {
 
   private setupCollitions(): void {
     this.physics.add.collider(this.player1, this.player2);
+
     this.physics.add.collider(this.player1, this.frameLayer);
     this.physics.add.collider(this.player1, this.gameLayer);
     this.physics.add.collider(this.player1, this.fortress);
@@ -233,15 +233,15 @@ export class StageScene extends Phaser.Scene {
     this.physics.add.collider(this.bulletsPlayer1, this.enemies, this.collitionDestroyEnemy, null, this);
     this.physics.add.collider(this.bulletsPlayer1, this.bulletsEnemies, this.collitionDestroyBullets, null, this);
 
-    this.physics.add.collider(this.bulletsPlayer2, this.player1);
-    this.physics.add.collider(this.bulletsPlayer2, this.frameLayer);
-    this.physics.add.collider(this.bulletsPlayer2, this.gameLayer);
-    this.physics.add.collider(this.bulletsPlayer2, this.fortress);
-    this.physics.add.collider(this.bulletsPlayer2, this.enemies);
-    this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies);
+    this.physics.add.collider(this.bulletsPlayer2, this.player1, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.frameLayer, this.collitionDestroyBullet, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.gameLayer, this.collitionDestroyGameLayer, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.fortress, this.collitionDestroyFortress, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.enemies, this.collitionDestroyEnemy, null, this);
+    this.physics.add.collider(this.bulletsPlayer2, this.bulletsEnemies, this.collitionDestroyBullets, null, this);
 
     this.physics.add.collider(this.bulletsEnemies, this.player1, this.collitionDestroyPlayer, null, this);
-    this.physics.add.collider(this.bulletsEnemies, this.player2);
+    this.physics.add.collider(this.bulletsEnemies, this.player2, this.collitionDestroyBullet, null, this); // to modifiy
     this.physics.add.collider(this.bulletsEnemies, this.frameLayer, this.collitionDestroyBullet, null, this);
     this.physics.add.collider(this.bulletsEnemies, this.gameLayer, this.collitionDestroyGameLayer, null, this);
     this.physics.add.collider(this.bulletsEnemies, this.fortress, this.collitionDestroyFortress, null, this);
@@ -260,28 +260,30 @@ export class StageScene extends Phaser.Scene {
     let velX: number = 0;
     let velY: number = 0;
 
-    if (StateControlPlayer.isDirectionUp()) {
+    const direction = StateControlPlayer.getDirection();
+
+    if (direction == Phaser.UP) {
       anim = "game-anim-bullet-up";
       posX = this.player1.x;
       posY = this.player1.y - BULLET_DELTA;
       velX = 0;
       velY = -BULLET_SPEED;
     }
-    if (StateControlPlayer.isDirectionRight()) {
+    else if (direction == Phaser.RIGHT) {
       anim = "game-anim-bullet-right";
       posX = this.player1.x + BULLET_DELTA;
       posY = this.player1.y;
       velX = BULLET_SPEED;
       velY = 0;
     }
-    if (StateControlPlayer.isDirectionDown()) {
+    else if (direction == Phaser.DOWN) {
       anim = "game-anim-bullet-down";
       posX = this.player1.x;
       posY = this.player1.y + BULLET_DELTA;
       velX = 0;
       velY = BULLET_SPEED;
     }
-    if (StateControlPlayer.isDirectionLeft()) {
+    else if (direction == Phaser.LEFT) {
       anim = "game-anim-bullet-left";
       posX = this.player1.x - BULLET_DELTA;
       posY = this.player1.y;
@@ -290,10 +292,10 @@ export class StageScene extends Phaser.Scene {
     }
 
     const bullet: Phaser.Physics.Arcade.Sprite = this.bulletsPlayer1.create(posX, posY, "game-bullet");
-    bullet.setBounce(0, 0);
-    bullet.setCollideWorldBounds(true);
     bullet.setData("name", "player-one-bullet");
     bullet.setData("key", Phaser.Math.RND.integer());
+    bullet.setBounce(0, 0);
+    bullet.setCollideWorldBounds(true);
     bullet.setVelocity(velX, velY);
     bullet.anims.play(anim, true);
 
@@ -315,28 +317,30 @@ export class StageScene extends Phaser.Scene {
     let velX: number = 0;
     let velY: number = 0;
 
-    if (StateControlEnemies.isDirectionUp(enemy)) {
+    const direction = StateControlEnemies.getDirection(enemy);
+
+    if (direction == Phaser.UP) {
       anim = "game-anim-bullet-up";
       posX = enemy.x;
       posY = enemy.y - BULLET_DELTA;
       velX = 0;
       velY = -BULLET_SPEED;
     }
-    if (StateControlEnemies.isDirectionRight(enemy)) {
+    else if (direction == Phaser.RIGHT) {
       anim = "game-anim-bullet-right";
       posX = enemy.x + BULLET_DELTA;
       posY = enemy.y;
       velX = BULLET_SPEED;
       velY = 0;
     }
-    if (StateControlEnemies.isDirectionDown(enemy)) {
+    else if (direction == Phaser.DOWN) {
       anim = "game-anim-bullet-down";
       posX = enemy.x;
       posY = enemy.y + BULLET_DELTA;
       velX = 0;
       velY = BULLET_SPEED;
     }
-    if (StateControlEnemies.isDirectionLeft(enemy)) {
+    else if (direction == Phaser.LEFT) {
       anim = "game-anim-bullet-left";
       posX = enemy.x - BULLET_DELTA;
       posY = enemy.y;
@@ -435,40 +439,45 @@ export class StageScene extends Phaser.Scene {
     src.anims.play("game-anim-bullet-explosion", true);
 
     const name: string = src.getData("name");
-    const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
 
     if (name === "player-one-bullet") {
       this.time.delayedCall(150, () => { this.bulletsPlayer1.remove(src, true, true); });
     }
-    if (name === "enemy-bullet") {
+    else if (name === "enemy-bullet") {
       this.time.delayedCall(150, () => { this.bulletsEnemies.remove(src, true, true); });
     }
 
-    // console.log("dir", StateControlBullets.getDirection(src));
+    const direction = StateControlBullets.getDirection(src);
 
-    if (StateControlBullets.isDirectionUp(src)) {
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
-      this.gameLayer.removeTileAt(tileXY.x, tileXY.y - 1);
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
-      this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y - 1);
+    const tileXY: Phaser.Math.Vector2 = this.gameLayer.worldToTileXY(src.x, src.y);
+
+    if (direction == Phaser.UP) {
+      const delta = this.gameLayer.hasTileAt(tileXY.x, tileXY.y - 1) ? 1 : 2;
+      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - delta);
+      this.gameLayer.removeTileAt(tileXY.x + 0, tileXY.y - delta);
+      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - delta);
+      this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y - delta);
     }
-    if (StateControlBullets.isDirectionRight(src)) {
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 2);
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y - 1);
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y);
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
+    else if (direction == Phaser.RIGHT) {
+      const delta = this.gameLayer.hasTileAt(tileXY.x + 1, tileXY.y) ? 1 : 2;
+      this.gameLayer.removeTileAt(tileXY.x + delta, tileXY.y - 2);
+      this.gameLayer.removeTileAt(tileXY.x + delta, tileXY.y - 1);
+      this.gameLayer.removeTileAt(tileXY.x + delta, tileXY.y + 0);
+      this.gameLayer.removeTileAt(tileXY.x + delta, tileXY.y + 1); 
     }
-    if (StateControlBullets.isDirectionDown(src)) {
-      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + 1);
-      this.gameLayer.removeTileAt(tileXY.x, tileXY.y + 1);
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
-      this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y + 1);
+    else if (direction == Phaser.DOWN) {
+      const delta = this.gameLayer.hasTileAt(tileXY.x, tileXY.y + 1) ? 1 : 2;
+      this.gameLayer.removeTileAt(tileXY.x + 1, tileXY.y + delta);
+      this.gameLayer.removeTileAt(tileXY.x + 0, tileXY.y + delta);
+      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + delta);
+      this.gameLayer.removeTileAt(tileXY.x - 2, tileXY.y + delta);
     }
-    if (StateControlBullets.isDirectionLeft(src)) {
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 2);
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y - 1);
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y);
-      this.gameLayer.removeTileAt(tileXY.x - 1, tileXY.y + 1);
+    else if (direction == Phaser.LEFT) {
+      const delta = this.gameLayer.hasTileAt(tileXY.x - 1, tileXY.y) ? 1 : 2;
+      this.gameLayer.removeTileAt(tileXY.x - delta, tileXY.y - 2);
+      this.gameLayer.removeTileAt(tileXY.x - delta, tileXY.y - 1);
+      this.gameLayer.removeTileAt(tileXY.x - delta, tileXY.y + 0);
+      this.gameLayer.removeTileAt(tileXY.x - delta, tileXY.y + 1);
     }
   }
 
