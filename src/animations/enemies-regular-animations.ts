@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/phaser.d.ts" />
-
 export class EnemiesRegularAnimations {
 
   public static create(scene: Phaser.Scene): void {

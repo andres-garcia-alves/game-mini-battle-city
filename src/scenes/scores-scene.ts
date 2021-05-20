@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/phaser.d.ts" />
-
 import { GameProgress } from "../entities/game-progress";
 
 export class ScoresScene extends Phaser.Scene {

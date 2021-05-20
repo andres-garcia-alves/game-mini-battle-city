@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/phaser.d.ts" />
-
 import { StateControlEnemy } from "../entities/state-control-enemy";
 
 export class StateControlEnemies {
