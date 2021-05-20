@@ -36,6 +36,8 @@ If you want to run this project then you need [Node.js](https://nodejs.org) inst
 | `npm run start` | Launch browser with the game. <br> Press `Ctrl + c` to kill **http-server** process. |
 | `npm run deploy` | To build a minified game version for production. |
 
+For hosting on IIS 7+: add `.fnt` to allowed MIME Types (MIME-TYPE: text/html)
+
 &nbsp;
 
 This is the first public release of this project.  
