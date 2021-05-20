@@ -6,9 +6,14 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true
 	},
-	
 	"files": [
-		"types/phaser.d.ts",
 		"src/app.ts"
-	]
+	],
+	"include": [
+        "src/**/*"
+    ],
+	"exclude": [
+        "node_modules",
+		"**/*.spec.ts"
+    ]
 }

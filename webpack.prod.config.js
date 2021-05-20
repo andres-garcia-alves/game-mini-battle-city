@@ -1,67 +1,61 @@
-var path = require('path')
-var webpack = require('webpack')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-// Phaser webpack config
-var phaserModule = path.join(__dirname, '/node_modules/phaser/')
-var phaser = path.join(phaserModule, 'src/phaser.js')
+// phaser path
+const phaser = path.join(__dirname, '/node_modules/phaser/src/phaser.js');
 
-var definePlugin = new webpack.DefinePlugin({
-  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false')),
+// plugins instances
+const cleanWebpackPlugin = new CleanWebpackPlugin();
+const definePlugin = new webpack.DefinePlugin({
   WEBGL_RENDERER: true, 
   CANVAS_RENDERER: true 
-})
+});
+const ignorePlugin = new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/);
+const htmlWebpackPlugin = new HtmlWebpackPlugin({
+  template: './src/index.html',
+  filename: 'index.html',
+  minify: {
+    removeAttributeQuotes: true,
+    collapseWhitespace: true,
+    html5: true,
+    minifyCSS: true,
+    minifyJS: true,
+    minifyURLs: true,
+    removeComments: true,
+    removeEmptyAttributes: true
+  },
+  hash: true
+});
 
+
+// webpack config
 module.exports = {
+  mode: 'production',
   entry: {
-    app: [
-      path.resolve(__dirname, 'src/app.ts')
-    ],
-    vendor: ['phaser']
+    app: {
+      import: path.resolve(__dirname, 'src/app.ts'),
+      dependOn: 'phaser'
+    },
+    phaser: 'phaser'
   },
   output: {
     path: path.resolve(__dirname, 'deploy'),
-    publicPath: './',
-    filename: 'js/bundle.js'
+    // publicPath: './',
+    filename: '[name].bundle.js'
   },
-  plugins: [
-    definePlugin,
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new webpack.optimize.UglifyJsPlugin({
-      drop_console: true,
-      minimize: true,
-      output: {
-        comments: false
-      }
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      filename: 'js/vendor.bundle.js'
-    }),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: './src/index.html',
-      chunks: ['vendor', 'app'],
-      chunksSortMode: 'manual',
-      minify: {
-        removeAttributeQuotes: true,
-        collapseWhitespace: true,
-        html5: true,
-        minifyCSS: true,
-        minifyJS: true,
-        minifyURLs: true,
-        removeComments: true,
-        removeEmptyAttributes: true
-      },
-      hash: true
-    })
-  ],
+  resolve: {
+    extensions: ['.ts', '.js'],
+    alias: { 'phaser': phaser }
+  },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        loaders: ['babel-loader', 'awesome-typescript-loader'],
+        use: ['awesome-typescript-loader'],
         include: path.join(__dirname, 'src'),
+        exclude: /node_modules/
       },
       { 
         test: [/\.vert$/, /\.frag$/], 
@@ -69,15 +63,10 @@ module.exports = {
       }
     ]
   },
-  node: {
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty'
-  },
-  resolve: {
-    extensions: ['.ts', '.js'],
-    alias: {
-      'phaser': phaser
-    }
-  }
+  plugins: [
+    cleanWebpackPlugin,
+    definePlugin,
+    ignorePlugin,
+    htmlWebpackPlugin
+  ]
 }
