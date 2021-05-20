@@ -1,2 +1,0 @@
-For hosting in IIS 7+
-- Add .fnt to allowed MIME Types (MIME-TYPE: text/html)
