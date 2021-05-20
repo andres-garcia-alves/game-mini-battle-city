@@ -1,12 +1,9 @@
 # Mini Battle City
 
-A HTML5 Battle City (NES) clon using Phaser 3 & TypeScript. 
-[LIVE DEMO HERE](https://andres-garcia-alves.github.io/mini-battle-city/).
+A 'Battle City' (NES) clon, developed in HTML 5, Phaser 3 & TypeScript.  
+[LIVE DEMO HERE](https://andres-garcia-alves.github.io/mini-battle-city/).  
 
-Developed for subject 'Lenguajes de Programación', on CAECE University, Buenos Aires, Argentina.
-
-This is the first public release of this proyect.
-If you want, please send me your feedback about this game: andres.garcia.alves@gmail.com
+&nbsp;
 
 ### Screenshots
 
@@ -38,5 +35,12 @@ If you want to run this project then you need [Node.js](https://nodejs.org) inst
 | `npm install` | Install dependencies. |
 | `npm run start` | Launch browser with the game. <br> Press `Ctrl + c` to kill **http-server** process. |
 | `npm run deploy` | To build a minified game version for production. |
+
+&nbsp;
+
+This is the first public release of this project.  
+Developed for subject 'Lenguajes de Programación', at CAECE University, Buenos Aires, Argentina.
+
+Please send me your feedback about this game: andres.garcia.alves@gmail.com
 
 Enjoy!
