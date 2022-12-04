@@ -1,7 +1,7 @@
 # Mini Battle City
 
 A 'Battle City' (NES) clon, developed in HTML 5, Phaser 3 & TypeScript.  
-[LIVE DEMO HERE](https://andres-garcia-alves.github.io/mini-battle-city/).  
+[LIVE DEMO HERE](https://andres-garcia-alves.github.io/battle-city-mini-game/).  
 
 &nbsp;
 
